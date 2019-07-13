@@ -1,14 +1,16 @@
 
 // NGU stuff
 
-const {px, Rect, rect, wait} = require('./util.js');
-const ui = require('./ui.js');
+const {px, Rect, rect} = require('./util.js');
 
 const W = 960, H = 600;
 
 // coordinates (relative to a canvas of size `WxH`)
 const coords = {
 	size: px( W, H ),
+	main: {
+		settings: rect(px(11,528), px(49,558)),
+	},
 	feat: {
 		bar: rect( px(176,30), px(290,523) ),
 		count: 17,
@@ -76,28 +78,7 @@ for( let row = 0; row < 5; ++row ) {
 	}
 }
 
-async function debug( coord, s=3 ) {
-	let el;
-
-	// point
-	if( coord.hasOwnProperty('x') ) {
-		el = new ui.Point( {size:7} );
-		el.move( coord );
-		el.show();
-	}
-	// rect
-	if( coord.hasOwnProperty('topLeft') ) {
-		el = new ui.Rect();
-		el.set( coord );
-		el.show();
-	}
-
-	await wait( s );
-	el.hide();
-}
-
 module.exports = {
 	coords,
 	feats,
-	debug,
 };

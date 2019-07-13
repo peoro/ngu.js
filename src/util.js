@@ -39,7 +39,7 @@ class Rect {
 const rect = (tl, br)=>new Rect( tl, br );
 
 // extra stuff
-function wait( sec=0 ) {
+function wait( sec=0.03 ) {
 	return new Promise( (resolve, reject)=>setTimeout(resolve, sec*1000) );
 };
 
@@ -49,9 +49,21 @@ async function seq( fns ) {
 	}
 };
 
+function withTimeout( promise, s=3 ) {
+	const timeout = new Promise( (resolve, reject)=>{
+		const handle = setTimeout( ()=>{
+			clearTimeout( handle );
+			reject(`Timeout on a promise after ${s}s`);
+		}, s*1000 );
+	});
+
+	return Promise.race( [promise, timeout] );
+}
+
 module.exports = {
 	Pixel, px,
 	Rect, rect,
 	wait,
 	seq,
+	withTimeout,
 };

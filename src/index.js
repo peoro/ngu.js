@@ -5,28 +5,27 @@ const io = require('./io.js');
 const ngu = require('./ngu.js');
 const logic = require('./logic.js');
 const loops = require('./loops.js');
+const gui = require('./gui.js');
+const nguJs = require('./ngujs.js');
 
-function uninstall() {
-	if( window.peoros ) {
+Object.assign( module.exports = {
+	util, ui, io, ngu, logic, loops, gui, nguJs,
+});
+
+async function main() {
+	// uninstalling previous version of NGU.js
+	if( window.nguJs ) {
+		console.log( `Found a previous version of NGU.js. Uninstalling it.` );
 		try {
-			window.peoros.logic.stop();
-		} catch(e) {}
+			await util.withTimeout( window.nguJs.destroy() );
+		} catch( e ) {
+			console.error(`There was an issue uninstalling the previous version of NGU.js:`, e );
+		}
 	}
 
-	// removing old div, if any
-	const div = document.getElementById( `peorosDiv` );
-	if( div ) { div.remove(); }
-}
-
-const peoros = module.exports = {
-	util, ui, io, ngu, logic, loops, uninstall,
-};
-
-if( module === require.main ) {
-	uninstall();
-
+	// fetching the game canvas
+	const gameCanvas = document.getElementById( '#canvas' );
 	{
-		const gameCanvas = document.getElementById( '#canvas' );
 		if( ! gameCanvas ) {
 			console.log( `%cCouldn't find the game canvas!`, `color:red; font-size:x-large;` );
 			console.log( `%cMake sure that the game has loaded, and that you're pasting this code into "gameiframe" (in the dropdown menu of this JavaScript console - by default it reads "top")`, `color:red;` );
@@ -34,31 +33,39 @@ if( module === require.main ) {
 		}
 	}
 
-	window.peoros = peoros;
+	// instantiating NGU.js
+	window.nguJs = new nguJs.NguJs( gameCanvas );
+	window.nguJsLib = module.exports;
 
+	// printing a how-to message
 	{
 		const comment = (str)=>console.log( `%c// ${str}`, `color:Green;` );
 		const code = (str)=>console.log( `%c${str}`, `font-family: monospace;` );
 		const space = ()=>console.log();
 
 		comment(`To start hacking with this:`);
-		code(`var {px, rect} = peoros.util;`);
+		code(`var {px, rect} = nguJsLib.util;`);
 		space();
 		comment(`Draw a point or a rect for debugging:`);
-		code(`peoros.ngu.debug( peoros.ngu.coords.inv.slot(5,2) );
-peoros.ngu.debug( peoros.ngu.coords.inv.slot(5,2).center );
-peoros.ngu.coords.inv.slot(5,2).toString();`);
+		code(`nguJs.debug( nguJsLib.ngu.coords.inv.slot(5,2) );
+nguJs.debug( nguJsLib.ngu.coords.inv.slot(5,2).center );
+nguJsLib.ngu.coords.inv.slot(5,2).toString();`);
 		space();
-		comment(`Start high level pieces of logic:`);
-		code(`peoros.io.focus();
-peoros.logic.applyAllBoostsToCube();
-peoros.loops.mergeLoop();`);
+		comment(`Run some small pieces of logic:`);
+		code(`nguJs.focus();
+nguJs.logic.inv.applyAllBoostsToCube();`);
 		space();
-		comment(`To stop loops:`);
-		code(`peoros.loops.stop();`);
+		comment(`Run game management routines:`);
+		code(`nguJs.loops.mergeLoop();`);
+		space();
+		comment(`To stop game management routines:`);
+		code(`nguJs.loopRunner.stop();`);
 		space();
 		comment(`To uninstall:`);
-		code(`peoros.uninstall();`);
+		code(`nguJs.destroy();`);
 	}
+}
 
+if( module === require.main ) {
+	main();
 }

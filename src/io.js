@@ -2,7 +2,7 @@
 // generic IO functions (not specific to NGU or any game)
 
 const {px} = require('./util.js');
-const ui = require('./ui.js');
+const {Point, Rect} = require('./ui.js');
 
 const mkEvent = (EvType, eventName, data)=>{
 	return new EvType( eventName, Object.assign({
@@ -12,39 +12,42 @@ const mkEvent = (EvType, eventName, data)=>{
 	}, data) );
 };
 
-// let's draw an UI Point where the mouse is
-const vMouse = new ui.Point( {color:`red`} );
-vMouse.show();
+class Mouse {
+	constructor( target, ui ) {
+		this.target = target;
+		this.p = px( 0, 0 );
 
-const mouse = {
-	p: px( 0, 0 ),
-	ui: vMouse,
-
+		if( ui ) {
+			const vMouse = new Point( {color:`red`} );
+			vMouse.show( ui );
+			this.vMouse = vMouse;
+		}
+	}
 	sendEvent( eventName, data={} ) {
 		const {x, y} = this.p;
-		const element = document.elementFromPoint( x, y );
+		const element = this.target || document.elementFromPoint(x, y);
 		const event = mkEvent( MouseEvent, eventName, Object.assign({clientX:x, clientY:y}, data) );
 		element.dispatchEvent( event );
-	},
+	}
 	move( p ) {
 		this.p.copy( p );
-		this.ui.move( p );
+		this.vMouse.move( p );
 
 		return this.sendEvent( `mousemove` );
-	},
-	down( button=0 ) { return this.sendEvent(`mousedown`, {button}); },
-	up( button=0 ) { return this.sendEvent(`mouseup`, {button}); },
+	}
+	down( button=0 ) { return this.sendEvent(`mousedown`, {button}); }
+	up( button=0 ) { return this.sendEvent(`mouseup`, {button}); }
 	async click( button=0 ) {
 		// return this.sendEvent( `click`, {button} );
 		await this.down( button );
 		await this.up( button );
-	},
-};
+	}
+}
 
-const keyboard = {
+class Keyboard {
 	sendEvent( eventName, key, data={} ) {
 		const keyCode = key.toUpperCase().charCodeAt(0);
-		// console.log( `Pressing key ${key} ${keyCode}` );
+
 		const event = mkEvent( KeyboardEvent, eventName, Object.assign({
 			// code: `TODO`,
 			code: `KeyD`,
@@ -53,18 +56,17 @@ const keyboard = {
 			which: keyCode,
 		}, data) );
 		window.dispatchEvent( event );
-	},
-	down( key ) { return this.sendEvent(`keydown`, key); },
-	up( key ) { return this.sendEvent(`keyup`, key); },
+	}
+	down( key ) { return this.sendEvent(`keydown`, key); }
+	up( key ) { return this.sendEvent(`keyup`, key); }
 	async press( key ) {
 		await this.down( key );
 		await this.up( key );
-	},
+	}
 };
 
 module.exports = {
 	mkEvent,
-	focus: ()=>window.dispatchEvent( mkEvent(FocusEvent, `focus`) ),
-	mouse,
-	keyboard,
+	Mouse,
+	Keyboard,
 };

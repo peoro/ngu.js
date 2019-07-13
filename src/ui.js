@@ -1,16 +1,19 @@
 
 // UI for virtual input
 
-// creating new div
-const div = document.createElement(`div`);
-{
-	div.id = `peorosDiv`;
+const ui = module.exports;
 
-	// setting point style
-	const style = div.style;
-	style.pointerEvents = `none`;
+class UI {
+	constructor() {
+		console.assert( ! document.getElementById(`nguJsDiv`) );
 
-	document.body.appendChild( div );
+		const div = this.div = document.createElement(`div`);
+		div.id = `nguJsDiv`;
+		document.body.appendChild( div );
+	}
+	destroy() {
+		this.div.remove();
+	}
 }
 
 class Point {
@@ -36,7 +39,7 @@ class Point {
 		style.zIndex = 1000;
 		style.pointerEvents = `none`;
 	}
-	show() { div.appendChild(this.point); }
+	show( ui ) { ui.div.appendChild(this.point); }
 	hide() { this.point.remove(); }
 	move( {x,y} ) {
 		const style = this.point.style;
@@ -63,7 +66,7 @@ class Rect {
 		style.zIndex = 1000;
 		style.pointerEvents = `none`;
 	}
-	show() { div.appendChild(this.point); }
+	show( ui ) { ui.div.appendChild(this.point); }
 	hide() { this.point.remove(); }
 	set( rect ) {
 		const style = this.point.style;
@@ -74,8 +77,8 @@ class Rect {
 	}
 }
 
-module.exports = {
-	div,
+Object.assign( ui, {
+	UI,
 	Point,
 	Rect,
-};
+});
