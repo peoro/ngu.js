@@ -1,0 +1,21 @@
+{
+	"name": "ngu",
+	"version": "0.0.1",
+	"description": "",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "webpack --mode=production",
+		"build:dev": "webpack --mode=development",
+		"dev": "npm run build:dev && cat dist/ngu.js | xclip -selection clipboard"
+	},
+	"repository": {
+		"type": "git",
+		"url": "gitea@git.peori.space:peoro/ngu.git"
+	},
+	"author": "peoro",
+	"license": "ISC",
+	"devDependencies": {
+		"webpack": "^4.35.3",
+		"webpack-cli": "^3.3.5"
+	}
+}
