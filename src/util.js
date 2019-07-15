@@ -12,6 +12,7 @@ class Pixel {
 	clone() { return new Pixel( this.x ,this.y ); }
 	map( fn ) { this.x = fn(this.x); this.y = fn(this.y); return this; }
 	zip( px2, fn ) { this.x = fn(this.x, px2.x); this.y = fn(this.y, px2.y); return this; }
+	every( fn ) { return fn(this.x) && fn(this.y); }
 	add( px2 ) { return this.zip( px2, (a,b)=>a+b ); }
 	sub( px2 ) { return this.zip( px2, (a,b)=>a-b ); }
 	multiply( px2 ) { return this.zip( px2, (a,b)=>a*b ); }
@@ -52,6 +53,10 @@ async function seq( fns ) {
 	}
 };
 
+function timeSec() {
+	return performance.now() / 1000;
+}
+
 function withTimeout( promise, s=3 ) {
 	const timeout = new Promise( (resolve, reject)=>{
 		const handle = setTimeout( ()=>{
@@ -68,5 +73,6 @@ module.exports = {
 	Rect, rect,
 	wait,
 	seq,
+	timeSec,
 	withTimeout,
 };

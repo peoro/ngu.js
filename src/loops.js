@@ -1,7 +1,7 @@
 
 // high level strategies
 
-const {wait} = require('./util.js');
+const {timeSec} = require('./util.js');
 const {coords, feats} = require('./ngu.js');
 
 class LoopRunner {
@@ -10,17 +10,15 @@ class LoopRunner {
 		this.shouldStop = false;
 	}
 
-	async sync() {
-		await nguJs.io.sync();
-		if( this.shouldStop ) { throw `stop`; }
-	}
-	async wait( s=0 ) {
-		if( this.shouldStop ) { throw `stop`; }
+	async sync( nextFrame ) {
+		// waiting until next frame
+		if( nextFrame ) { await nguJs.io.nextFrame; }
 
-		while( s >= 0 ) {
-			await wait( Math.min(s, 1) );
-			s -= 1;
-		}
+		// waiting until all input events have been processed
+		await nguJs.io.sync();
+
+		// stopping
+		if( this.shouldStop ) { throw `stop`; }
 	}
 	async runRule( ruleName, fn ) {
 		console.assert( ! this.currentRule, `Trying to start ${ruleName} while ${this.currentRule
@@ -42,16 +40,17 @@ class LoopRunner {
 		}
 	}
 	mkRule( ruleName, fn ) {
-		const loop = ( ...args )=>{
+		const loop = async (...args )=>{
+			await this.stop();
+
 			const opts = args.length > 0 ? args[ args.length-1 ] : {};
 			const times = opts.times || Infinity;
 			const pause = opts.pause || 0;
 
-			return this.runRule( ruleName, async ()=>{
+			await this.runRule( ruleName, async ()=>{
 				for( let i = 0; i < times; ++i ) {
 					await fn.apply( this, args );
-					await this.sync(); // waiting for all input to be processed
-					await this.wait( pause ); // waiting for an extra bit
+					await this.sync( true ); // waiting for all input to be processed
 				}
 			});
 		};
@@ -88,61 +87,71 @@ class LoopRunner {
 				const {move} = coords.adv.moves;
 
 				let bossFound = false;
-
-				await this.sync();
+				let lastEnemyTime = timeSec();
 
 				while( true ) {
-					const [{moves, boss, enemyAlive}, needHeal, needHealBadly] = await Promise.all([
-						logic.adv.getFightInfo(),
-						logic.adv.hpRatioIsAtLeast( .8 ).then( x=>!x ),
-						logic.adv.hpRatioIsAtLeast( .5 ).then( x=>!x ),
-					]);
+					await this.sync( true ); // making sure that the pixel we're using are fresh
 
-					bossFound = bossFound || ( enemyAlive && boss );
-					if( bossFound && ! enemyAlive ) {
+					const moveInfo = logic.adv.getMovesInfo();
+					const isBoss = logic.adv.isBoss();
+					const isEnemyAlive = logic.adv.isEnemyAlive();
+
+					const now = timeSec();
+					if( isEnemyAlive ) { lastEnemyTime = now; }
+					bossFound = bossFound || ( isEnemyAlive && isBoss );
+
+					if( bossFound && ! isEnemyAlive ) {
 						console.log( `done killing the boss!` );
 						return;
 					}
 
+					if( now - lastEnemyTime > 10 ) {
+						// hmm... I'm probably dead :(
+						console.log( `Am I... Dead?! D:` );
+						return;
+					}
+
 					const chosenMove = (()=>{
-						if( moves.idle.active ) {
+						if( moveInfo.idle.active ) {
 							console.log( `disabling idle attack` );
 							return move.idle;
 						}
 
-						if( enemyAlive && ! boss ) {
+						if( isEnemyAlive && ! isBoss ) {
 							console.log( `!boss: skipping` );
 							logic.adv.prevArea();
 							logic.adv.nextArea();
 							return;
 						}
 
-						if( needHealBadly ) {
+						const reallyNeedHeal = ! logic.adv.hpRatioIsAtLeast( .5 );
+						if( reallyNeedHeal ) {
 							console.log( `need urgent heal!` );
-							if( moves.defBuff.ready ) { return move.defBuff; }
-							if( moves.heal.ready ) { return move.heal; }
-							if( moves.regen.ready ) { return move.regen; }
+							if( moveInfo.defBuff.ready ) { return move.defBuff; }
+							if( moveInfo.heal.ready ) { return move.heal; }
+							if( moveInfo.regen.ready ) { return move.regen; }
 						}
 
-						if( ! enemyAlive ) {
+						if( ! isEnemyAlive ) {
+							const needHeal = ! logic.adv.hpRatioIsAtLeast( .8 );
 							if( needHeal ) {
-								if( moves.heal.ready ) { return move.heal; }
-								if( moves.regen.ready ) { return move.regen; }
+								if( moveInfo.heal.ready ) { return move.heal; }
+								if( moveInfo.regen.ready ) { return move.regen; }
 							}
-							if( moves.parry.ready ) { return move.parry; }
+							if( moveInfo.parry.ready ) { return move.parry; }
 							return;
 						}
 
 						// actual fighting
-						if( moves.ultimate.ready && (moves.charge.ready || moves.charge.active) ) {
-							if( moves.offBuff.ready ) { return move.offBuff; }
-							if( moves.ultBuff.ready ) { return move.ultBuff; }
-							if( moves.charge.ready ) { return move.charge; }
+						if( moveInfo.ultimate.ready && (moveInfo.charge.ready || moveInfo.charge.active) ) {
+							if( moveInfo.offBuff.ready ) { return move.offBuff; }
+							if( moveInfo.ultBuff.ready ) { return move.ultBuff; }
+							if( moveInfo.charge.ready ) { return move.charge; }
 						}
-						if( moves.ultimate.ready ) { return move.ultimate; }
-						if( moves.piercing.ready ) { return move.piercing; }
-						if( moves.strong.ready ) { return move.strong; }
-						if( moves.regular.ready ) { return move.regular; }
+						if( moveInfo.ultimate.ready ) { return move.ultimate; }
+						if( moveInfo.piercing.ready ) { return move.piercing; }
+						if( moveInfo.strong.ready ) { return move.strong; }
+						if( moveInfo.regular.ready ) { return move.regular; }
 
 						// console.log( `no attack ready` );
 					})();
@@ -151,14 +160,11 @@ class LoopRunner {
 						console.log( `Using move`, chosenMove.name );
 						logic.adv.attack( chosenMove );
 					}
-
-					await this.sync();
 				}
 			}),
 
 			mainLoop: this.mkRule( `snipe and fix inventory`, async function(){
 				await nguJs.loops.fixInv.fn.apply( this );
-				await this.sync();
 				await nguJs.loops.snipeBoss.fn.apply( this );
 			}),
 

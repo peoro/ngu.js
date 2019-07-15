@@ -7,24 +7,18 @@ const {leftArrow, rightArrow} = Keyboard.keys;
 describe( `io`, function(){
 	describe(`Input event requests wait for their turn to act`, function(){
 
-		let io;
 		let input; // `: [[event]]`: a new array `[event]` every time we wait for the next frame
+		let io;
 
 		beforeEach( function(){
-			io = new IO( document.getElementById('#canvas') );
 			input = [];
-			newArrOnNewFrame();
+			io = new IO( document.getElementById('#canvas'), null, {headless:true} );
+			io.eachFrame( ()=>{ input.push([]); });
 		});
 		afterEach( function(){
 			io.destroy();
 		});
 
-		const newArrOnNewFrame = async ()=>{
-			// console.log( `new frame` );
-			input.push([]);
-			await io.nextFrame;
-			newArrOnNewFrame();
-		};
 		const inputLogger = (data)=>{
 			return ()=>{ input[input.length-1].push(data); };
 		};

@@ -37,14 +37,16 @@ const mkEvent = (EvType, eventName, data)=>{
 };
 
 class IO {
-	constructor( gameCanvas, ui ) {
+	constructor( gameCanvas, ui, {headless=false}={} ) {
 		this.state = new IO.State( this );
 		this.animationHandle = null;
 		this.nextFrame = null;
 
 		this.mouse = new Mouse( this, gameCanvas, ui );
 		this.keyboard = new Keyboard( this );
-		this.framebuffer = new Framebuffer( gameCanvas );
+		if( ! headless ) {
+			this.framebuffer = new Framebuffer( this, gameCanvas );
+		}
 
 		const waitForNextFrame = ()=>{
 			return this.nextFrame = new Promise( (resolve,reject)=>{
@@ -55,6 +57,18 @@ class IO {
 			});
 		};
 		waitForNextFrame();
+	}
+	eachFrame( fn ) {
+		let running = true;
+
+		(async ()=>{
+			while( running ) {
+				fn();
+				await this.nextFrame;
+			}
+		})();
+
+		return { destroy(){ running = false; } };
 	}
 	log( ...args ) {
 		// console.log( ...args );
@@ -213,41 +227,26 @@ Keyboard.keys = {
 const W = 960, H = 600;
 
 class Framebuffer {
-	constructor( canvas ) {
+	constructor( io, canvas ) {
 		console.assert( canvas.width === W && canvas.height === H, `Framebuffer is currently meant to only work with ${W}x${H} canvases (canvas is ${canvas.width}x${canvas.height})` );
 
-		this.buffer = new ArrayBuffer( 4*W*H );
-		this.gl = canvas.getContext('webgl2');
-	}
+		const buffer = new ArrayBuffer( 4*W*H );
 
-	// TODO(peoro): instead of querying the canvas for specific pixels one by one, it's probably better (way easier, and not too bad performance-wise) to grab the whole canvas every frame and work with that synchronously
+		this.io = io;
+		const gl = this.gl = canvas.getContext('webgl2');
+		this.dataView = new DataView( buffer );
 
-	getPixels( rect ) {
-		return new Promise( (resolve,reject)=>{
-			requestAnimationFrame( ()=>{
-				const {gl} = this;
-				gl.readPixels( rect.left, H-rect.top, rect.width, rect.height, gl.RGBA, gl.UNSIGNED_BYTE, this.u8arr );
-
-				// TODO(peoro): maybe, instead of downloading the image to the CPU, we could work with the image in GPU memory directly... Like writing a shader to hash an image on the screen. Such an optimization is probably unnecessary, but it'd be interesting
-				// TODO(peoro): `Uint32Array` doesn't work for our purpose on little-endian systems (e.g. x86 :/ ), and working with `Uint8Array` is uncomfortable... We should create some classes that use DataView to somehow abstract away pixel format (and maybe the fact that it's a 2D pixel array).
-				// TODO(peoro): can't we get rid of the alpha channel? hmmm, don't love working with 0xRRGGBBAA pixels... should we do `>>8` every pixel?
-				// TODO(peoro): How can we pass similar buffers to CV or OCR libraries btw?
-
-				// resolve( new Uint32Array(this.u8arr.buffer, 0, rect.width*rect.height) )
-				resolve( new Uint8Array(this.u8arr.buffer, 0, 4*rect.width*rect.height) );
-			});
+		const u8arr = new Uint8Array( buffer );
+		io.eachFrame( ()=>{
+			gl.readPixels( 0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, u8arr );
 		});
 	}
-	getPixel( p, {buffer=new ArrayBuffer(4), offset=0}={} ) {
+
+	getPixel( p ) {
 		console.assert( p.hasOwnProperty('x') && p.hasOwnProperty('y'), `${p} not a px...` );
-		return new Promise( (resolve,reject)=>{
-			requestAnimationFrame( ()=>{
-				const {gl} = this;
-				// TODO(peoro): why is `y-1` needed? is it always needed? what's going on?
-				gl.readPixels( p.x, H-p.y-1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(buffer), offset*4 );
-				resolve( new DataView(buffer).getUint32(offset*4, false) ); // should we `>>8` it?
-			});
-		});
+		console.assert( p.every(Number.isInteger), `${p} not integer` );
+		const offset = p.x + (H-p.y-1)*W;
+		return this.dataView.getUint32( offset*4, false );
 	}
 }
 
