@@ -39,9 +39,12 @@ const coords = {
 				return rect( topLeft, topLeft.clone().add(size.floor()) );
 			},
 		},
+		self: {
+			hpBar: rect(px(317,399), px(547,424)),
+		},
 		enemy: {
 			hpBar: rect(px(705,399), px(935,424)),
-		}
+		},
 	},
 	inv: {
 		// TODO(peoro): move into `inv.slots` or something
@@ -100,7 +103,7 @@ for( let moveName in moves ) {
 	const index = moves[moveName];
 	const rect = coords.adv.moves.move( index.x, index.y );
 	const px = rect.center;
-	coords.adv.moves.move[moveName] = {index, rect, px};
+	coords.adv.moves.move[moveName] = {name:moveName, index, rect, px};
 }
 
 // adding inv slots
@@ -153,15 +156,23 @@ const colors = {
 			[0xc7c4c7ff, false],
 		]), `moveActive` ),
 		moveState: new PixelColor( `moveState`, px(9,8), palette([
-			[0xf89b9bff, `ready`], // rows 1, 3
-			[0x7c4e4eff, `unavailable`], // rows 1, 3
+			[0xf89b9bff, `ready`], // rows 1
+			[0x7c4e4eff, `unavailable`], // rows 1
 			[0x6687a3ff, `ready`], // row 2
 			[0x334452ff, `unavailable`], // row 2
+			[0xc39494ff, `ready`], // row 3
 			[0x624a4aff, `unavailable`], // row 3
-			[0xc39494ff, `unexistent`],
 		]), `moveState` ),
 		boss: new PixelColor( `boss`, px(715, 278), palette([[0xf7ef29ff, true]], false) ),
-		enemyAlive: new PixelColor( `enemyAlive`, px(706, 411), darkerThan(.7) ), // NOTE(peoro): could be unreliable...
+
+		// the following might be unreliable
+		enemyAlive: new PixelColor( `enemyAlive`, px(706, 411), darkerThan(.7) ),
+		ownHpRatioAtLeast( ratio ) {
+			const hpBar = coords.adv.self.hpBar;
+			const x = Math.round( hpBar.left+1 + ratio*(hpBar.width-2) );
+			const y = hpBar.top+1;
+			return new PixelColor( `enemyAlive`, px(x,y), darkerThan(.7) );
+		}
 	},
 };
 

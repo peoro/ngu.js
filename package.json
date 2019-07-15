@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "webpack --mode=production",
 		"build:dev": "webpack --mode=development",
-		"dev": "npm run build:dev && cat dist/ngu.js | xclip -selection clipboard"
+		"dev": "npm run build:dev && cat dist/ngu.js | xclip -selection clipboard",
+		"test": "mocha tests/index.js"
 	},
 	"repository": {
 		"type": "git",
@@ -15,6 +16,9 @@
 	"author": "peoro",
 	"license": "ISC",
 	"devDependencies": {
+		"canvas": "^2.5.0",
+		"jsdom": "^15.1.1",
+		"mocha": "^6.1.4",
 		"webpack": "^4.35.3",
 		"webpack-cli": "^3.3.5"
 	}

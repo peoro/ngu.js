@@ -5,6 +5,11 @@ class Gui {
 
 		const {div} = nguJs.ui;
 
+		// events received on this widget shouldn't propagate to the canvas beneath
+		div.addEventListener( `mousemove`, (e)=>{ e.stopPropagation(); });
+		div.addEventListener( `mousedown`, (e)=>{ e.stopPropagation(); });
+		div.addEventListener( `mouseup`, (e)=>{ e.stopPropagation(); });
+
 		const nguJsButton = document.createElement('button');
 		nguJsButton.textContent = `.js`;
 		const style = nguJsButton.style;
@@ -66,8 +71,8 @@ class Gui {
 			const applyAllA = document.createElement('a');
 			{
 				const a = applyAllA;
-				a.textContent = `Merge loop`;
-				a.href = `javascript:void nguJs.loops.mergeLoop();`;
+				a.textContent = `Fix inventory`;
+				a.href = `javascript:void nguJs.loops.fixInv();`;
 				a.style.display = `block`;
 				controlDiv.appendChild( a );
 			}
@@ -77,6 +82,15 @@ class Gui {
 				const a = fightA;
 				a.textContent = `Snipe boss`;
 				a.href = `javascript:void nguJs.loops.snipeBoss();`;
+				a.style.display = `block`;
+				controlDiv.appendChild( a );
+			}
+
+			const mainLoopA = document.createElement('a');
+			{
+				const a = mainLoopA;
+				a.textContent = `Snipe bosses and fix inventory`;
+				a.href = `javascript:void nguJs.loops.mainLoop();`;
 				a.style.display = `block`;
 				controlDiv.appendChild( a );
 			}

@@ -44,19 +44,20 @@ async function main() {
 		const space = ()=>console.log();
 
 		comment(`To start hacking with this:`);
-		code(`var {px, rect} = nguJsLib.util;`);
+		code(`var {px, rect} = nguJsLib.util;
+var {coords, colors} = nguJsLib.ngu;`);
 		space();
 		comment(`Draw a point or a rect for debugging:`);
-		code(`nguJs.debug( nguJsLib.ngu.coords.inv.slot(5,2) );
-nguJs.debug( nguJsLib.ngu.coords.inv.slot(5,2).center );
-nguJsLib.ngu.coords.inv.slot(5,2).toString();`);
+		code(`nguJs.debug( coords.inv.slot(5,2) );
+nguJs.debug( coords.inv.slot(5,2).center );
+coords.inv.slot(5,2).toString();`);
 		space();
 		comment(`Run some small pieces of logic:`);
 		code(`nguJs.focus();
 nguJs.logic.inv.applyAllBoostsToCube();`);
 		space();
 		comment(`Run game management routines:`);
-		code(`nguJs.loops.mergeLoop();`);
+		code(`nguJs.loops.fixInv();`);
 		space();
 		comment(`To stop game management routines:`);
 		code(`nguJs.loopRunner.stop();`);

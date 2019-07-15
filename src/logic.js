@@ -3,6 +3,7 @@
 
 const {px} = require('./util.js');
 const {seq, wait} = require('./util.js');
+const {Keyboard} = require('./io.js');
 const {coords, feats, colors} = require('./ngu.js');
 
 class Logic {
@@ -11,10 +12,14 @@ class Logic {
 		this.adv = new AdvLogic( this );
 	}
 
-	async toFeat( feature ) {
+	getRidOfMouse() {
+		return nguJs.io.mouse.move( px(-1000,-1000) );
+	}
+
+	toFeat( feature ) {
 		const {mouse} = nguJs.io;
-		await mouse.move( coords.feat.buttons[feature].center );
-		await mouse.click();
+		mouse.move( coords.feat.buttons[feature].center );
+		mouse.click();
 	}
 
 	async queryPixel( pixelColor, baseObj ) {
@@ -40,24 +45,23 @@ class InvLogic extends FeatureLogic {
 	constructor( logic ) {
 		super( feats.inv, logic );
 	}
-	merge() { return nguJs.io.keyboard.press( 'd' ); }
-	async mergeSlot( slot ) {
+	merge() { return nguJs.io.keyboard.press( Keyboard.keys.d ); }
+	mergeSlot( slot ) {
 		const {mouse} = nguJs.io;
-		await mouse.move( slot.px );
-		await this.merge();
+		mouse.move( slot.px );
+		this.merge();
 	}
-	async mergeAllSlots() {
+	mergeAllSlots() {
 		for( let slot of coords.inv.pageSlots ) {
-			await this.mergeSlot( slot );
-			await wait();
+			this.mergeSlot( slot );
 		};
 	}
 	//mergeEquip
 	//mergeAll
-	async applyAllBoostsToCube() {
+	applyAllBoostsToCube() {
 		const {mouse} = nguJs.io;
-		await mouse.move( coords.inv.equip.cube.center );
-		await mouse.click( 2 );
+		mouse.move( coords.inv.equip.cube.center );
+		mouse.click( 2 );
 	}
 }
 
@@ -79,7 +83,7 @@ class AdvLogic extends FeatureLogic {
 				logic.queryPixel( moveActive, move ),
 				logic.queryPixel( moveState, move ),
 			])
-			result[name] = {active, state};
+			result[name] = {active, state, ready: state===`ready` && !active };
 		});
 		await Promise.all( promises );
 
@@ -94,6 +98,20 @@ class AdvLogic extends FeatureLogic {
 			this.isEnemyAlive(),
 		]);
 		return {moves, boss, enemyAlive};
+	}
+
+	hpRatioIsAtLeast( ratio ) {
+		return this.logic.queryPixel( colors.adv.ownHpRatioAtLeast(ratio) );
+	}
+
+	prevArea() { return nguJs.io.keyboard.press( Keyboard.keys.leftArrow ); }
+	nextArea() { return nguJs.io.keyboard.press( Keyboard.keys.rightArrow ); }
+	attack( move ) {
+		// TODO(peoro): let's use key shortcuts instead of moving mouse back and forth D:
+		const {mouse} = nguJs.io;
+		mouse.move( move.px );
+		mouse.click();
+		this.logic.getRidOfMouse();
 	}
 }
 
