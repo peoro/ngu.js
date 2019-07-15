@@ -22,12 +22,29 @@ const coords = {
 			const corner = px( bar.left, bar.top + buttonSize.y*n );
 			return rect( corner, corner.clone().add(buttonSize) );
 		},
-		buttons: [/* filled in later*/],
+		buttons: [/*filled in later*/],
 	},
-	equip: {
-		cube: rect( px(602,89), px(652,139) ),
+	adv: {
+		moves: {
+			count: px( 6, 3 ),
+			// OCD(peoro): the yellow boxes are all different sizes D:
+			// besides, it can't divided by `count` DDD:
+			area: rect(px(313,85), px(945,194)),
+			move( col, row ) {
+				const {count, area} = this;
+				console.assert( col >= 0 && col < count.x && row >= 0 && row < count.y, `Invalid move index ${col}x${row}` );
+
+				const size = px( area.width/count.x, area.height/count.y );
+				const topLeft = px( area.left + size.x*col, area.top + size.y*row ).ceil();
+				return rect( topLeft, topLeft.clone().add(size.floor()) );
+			},
+		},
+		enemy: {
+			hpBar: rect(px(705,399), px(935,424)),
+		}
 	},
 	inv: {
+		// TODO(peoro): move into `inv.slots` or something
 		gridSize: px( 12, 5 ),
 		slotSize: px( 50, 50 ),
 		slotArea: rect( px(326, 304), px(926, 554) ),
@@ -41,7 +58,10 @@ const coords = {
 				.add( slotArea.topLeft );
 
 			return rect( slotCorner, slotCorner.clone().add(slotSize) );
-		}
+		},
+		equip: {
+			cube: rect( px(602,89), px(652,139) ),
+		},
 	}
 };
 
@@ -61,11 +81,26 @@ const feats = {
 	gd: 12,
 	bp: 13,
 };
-
+// TODO(peoro): do the same as for the moves - actually abstract this logic into a function
 // filling in coords.feat buttons:
 for( let featName in feats ) {
 	const idx = feats[featName];
 	coords.feat.buttons[idx] = coords.feat.button( idx );
+}
+
+const moves = {
+	idle:px(0,0), regular:px(1,0), strong:px(2,0), parry:px(3,0), piercing:px(4,0), ultimate:px(5,0),
+	block:px(0,1), defBuff:px(1,1), heal:px(2,1), offBuff:px(3,1), charge:px(4,1), ultBuff:px(5,1),
+	locked:px(0,2), regen:px(1,2), locked:px(2,2), locked:px(3,2), locked:px(4,2), move69:px(5,2),
+};
+// filling in coords.adv.moves.move values:
+// TODO(peoro): it'd be cool to have an array[move], map<name,move>, map<index,move>
+// TODO(peoro): the function `coords.adv.moves.move` should be embedded here
+for( let moveName in moves ) {
+	const index = moves[moveName];
+	const rect = coords.adv.moves.move( index.x, index.y );
+	const px = rect.center;
+	coords.adv.moves.move[moveName] = {index, rect, px};
 }
 
 // adding inv slots
@@ -78,7 +113,61 @@ for( let row = 0; row < 5; ++row ) {
 	}
 }
 
+
+class PixelColor {
+	constructor( name, offset, colorMap ) {
+		Object.assign( this, {name, offset, colorMap} );
+	}
+
+	get( color ) {
+		const value = this.colorMap( color );
+		if( value === undefined ) {
+			console.warn( `${this.name}: found a pixel of unexpected color #${color.toString(16)}` );
+		}
+		return value;
+	}
+}
+
+function palette( colorMapArr, defaultValue ) {
+	const colorMap = new Map( colorMapArr );
+	return function( color ) {
+		const value = colorMap.get( color );
+		return value === undefined ? defaultValue : value;
+	};
+}
+function toDarkness( color ) {
+	const [r, g, b] = [
+		(color >> 24) & 0xff,
+		(color >> 16) & 0xff,
+		(color >>  8) & 0xff,
+	];
+	return (r+g+b)/3/0xFF;
+}
+function brighterThan( c ) { return (color)=>c < toDarkness(color); }
+function darkerThan( c ) { return (color)=>c > toDarkness(color); }
+
+const colors = {
+	adv: {
+		moveActive: new PixelColor( `moveActive`, px(2,2), palette([
+			[0xffeb04ff, true],
+			[0xc7c4c7ff, false],
+		]), `moveActive` ),
+		moveState: new PixelColor( `moveState`, px(9,8), palette([
+			[0xf89b9bff, `ready`], // rows 1, 3
+			[0x7c4e4eff, `unavailable`], // rows 1, 3
+			[0x6687a3ff, `ready`], // row 2
+			[0x334452ff, `unavailable`], // row 2
+			[0x624a4aff, `unavailable`], // row 3
+			[0xc39494ff, `unexistent`],
+		]), `moveState` ),
+		boss: new PixelColor( `boss`, px(715, 278), palette([[0xf7ef29ff, true]], false) ),
+		enemyAlive: new PixelColor( `enemyAlive`, px(706, 411), darkerThan(.7) ), // NOTE(peoro): could be unreliable...
+	},
+};
+
+
 module.exports = {
 	coords,
 	feats,
+	colors,
 };

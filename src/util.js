@@ -9,13 +9,16 @@ class Pixel {
 		const {x, y} = px1;
 		Object.assign( this, {x,y} );
 	}
-	clone() {
-		return new Pixel( this.x ,this.y );
-	}
-	add( px2 ) { this.x += px2.x; this.y += px2.y; return this; }
-	sub( px2 ) { this.x -= px2.x; this.y -= px2.y; return this; }
-	multiply( px2 ) { this.x *= px2.x; this.y *= px2.y; return this; }
-	divide( px2 ) { this.x /= px2.x; this.y /= px2.y; return this; }
+	clone() { return new Pixel( this.x ,this.y ); }
+	map( fn ) { this.x = fn(this.x); this.y = fn(this.y); return this; }
+	zip( px2, fn ) { this.x = fn(this.x, px2.x); this.y = fn(this.y, px2.y); return this; }
+	add( px2 ) { return this.zip( px2, (a,b)=>a+b ); }
+	sub( px2 ) { return this.zip( px2, (a,b)=>a-b ); }
+	multiply( px2 ) { return this.zip( px2, (a,b)=>a*b ); }
+	divide( px2 ) { return this.zip( px2, (a,b)=>a/b ); }
+	floor() { return this.map( Math.floor ); }
+	round() { return this.map( Math.round ); }
+	ceil() { return this.map( Math.ceil ); }
 }
 const px = (x,y)=>new Pixel( x, y );
 

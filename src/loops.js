@@ -38,7 +38,7 @@ class LoopRunner {
 	}
 	mkRule( ruleName, fn ) {
 		return (args)=>{
-			return this.runRule( `mergeLoop`, ()=>fn.apply(this, args) );
+			return this.runRule( ruleName, ()=>fn.apply(this, args) );
 		};
 	}
 	awaitRule() {
@@ -68,6 +68,34 @@ class LoopRunner {
 					await this.wait();
 					await logic.inv.mergeAllSlots();
 					await this.wait( pause );
+				}
+			}),
+
+			snipeBoss: this.mkRule( `fight loop`, async function() {
+				await nguJs.focus(); // focus lost if you click outside the game
+				await logic.adv.goTo();
+				await this.wait();
+
+				while( true ) {
+					attack: {
+						const {moves, boss, enemyAlive} = await logic.adv.getFightInfo();
+						if( ! enemyAlive ) {
+							console.log( `enemy dead` );
+							break attack;
+						}
+						if( enemyAlive && ! boss ) {
+							console.log( `look again for a boss` );
+							break attack;
+						}
+
+						if( moves.regular.state === `ready` ) {
+							console.log( `regular attack` );
+						}
+						else {
+							console.log( `no attack ready` );
+						}
+					}
+					await this.wait( .1 );
 				}
 			}),
 		};

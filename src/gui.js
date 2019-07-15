@@ -65,22 +65,27 @@ class Gui {
 
 			const applyAllA = document.createElement('a');
 			{
-				applyAllA.textContent = `Merge loop`;
-				applyAllA.href = `javascript:void nguJs.loops.mergeLoop();`;
-				applyAllA.style.display = `block`;
-				controlDiv.appendChild( applyAllA );
+				const a = applyAllA;
+				a.textContent = `Merge loop`;
+				a.href = `javascript:void nguJs.loops.mergeLoop();`;
+				a.style.display = `block`;
+				controlDiv.appendChild( a );
+			}
+
+			const fightA = document.createElement('a');
+			{
+				const a = fightA;
+				a.textContent = `Snipe boss`;
+				a.href = `javascript:void nguJs.loops.snipeBoss();`;
+				a.style.display = `block`;
+				controlDiv.appendChild( a );
 			}
 
 			div.appendChild( controlDiv );
 		}
 
-		div.addEventListener( `mouseenter`, ()=>{
-			controlDiv.style.visibility = `visible`;
-		});
-		div.addEventListener( `mouseleave`, ()=>{
-			console.log( `leave` );
-			controlDiv.style.visibility = `hidden`;
-		});
+		div.addEventListener( `mouseenter`, ()=>{ controlDiv.style.visibility = `visible`; } );
+		div.addEventListener( `mouseleave`, ()=>{ controlDiv.style.visibility = `hidden`; } );
 	}
 }
 

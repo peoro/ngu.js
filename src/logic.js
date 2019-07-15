@@ -1,8 +1,9 @@
 
 // high level logic routines
 
+const {px} = require('./util.js');
 const {seq, wait} = require('./util.js');
-const {coords, feats} = require('./ngu.js');
+const {coords, feats, colors} = require('./ngu.js');
 
 class Logic {
 	constructor() {
@@ -14,6 +15,15 @@ class Logic {
 		const {mouse} = nguJs.io;
 		await mouse.move( coords.feat.buttons[feature].center );
 		await mouse.click();
+	}
+
+	async queryPixel( pixelColor, baseObj ) {
+		const base = baseObj ?
+			baseObj.rect.topLeft :
+			px(0,0);
+
+		const color = await nguJs.io.framebuffer.getPixel( base.clone().add(pixelColor.offset) );
+		return pixelColor.get( color );
 	}
 }
 
@@ -46,14 +56,44 @@ class InvLogic extends FeatureLogic {
 	//mergeAll
 	async applyAllBoostsToCube() {
 		const {mouse} = nguJs.io;
-		await mouse.move( coords.equip.cube.center );
+		await mouse.move( coords.inv.equip.cube.center );
 		await mouse.click( 2 );
 	}
 }
 
+
 class AdvLogic extends FeatureLogic {
 	constructor( logic ) {
 		super( feats.adv, logic );
+	}
+
+	async getMovesInfo() {
+		const {logic} = this;
+		const {moveActive, moveState} = colors.adv;
+
+		const result = {};
+
+		let offset = 0;
+		const promises = Object.entries(coords.adv.moves.move).map( async ([name, move])=>{
+			const [active, state] = await Promise.all([
+				logic.queryPixel( moveActive, move ),
+				logic.queryPixel( moveState, move ),
+			])
+			result[name] = {active, state};
+		});
+		await Promise.all( promises );
+
+		return result;
+	}
+	isEnemyAlive() { return this.logic.queryPixel( colors.adv.enemyAlive ); }
+	isBoss() { return this.logic.queryPixel( colors.adv.boss ); }
+	async getFightInfo() {
+		const [moves, boss, enemyAlive] = await Promise.all([
+			this.getMovesInfo(),
+			this.isBoss(),
+			this.isEnemyAlive(),
+		]);
+		return {moves, boss, enemyAlive};
 	}
 }
 

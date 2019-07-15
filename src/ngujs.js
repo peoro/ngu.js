@@ -1,7 +1,7 @@
 
 const {wait} = require('./util.js');
 const ui = require('./ui.js');
-const {Mouse, Keyboard, mkEvent} = require('./io.js');
+const {Mouse, Keyboard, Framebuffer, mkEvent} = require('./io.js');
 const {Logic} = require('./logic.js');
 const {LoopRunner} = require('./loops.js');
 const {Gui} = require('./gui.js');
@@ -13,6 +13,7 @@ class NguJs {
 		this.io = {
 			mouse: new Mouse( gameCanvas, this.ui ),
 			keyboard: new Keyboard(),
+			framebuffer: new Framebuffer( gameCanvas ),
 		}
 
 		this.logic = new Logic( this.io );
