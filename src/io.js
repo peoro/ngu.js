@@ -233,7 +233,7 @@ class Framebuffer {
 		const buffer = new ArrayBuffer( 4*W*H );
 
 		this.io = io;
-		const gl = this.gl = canvas.getContext('webgl2');
+		const gl = this.gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
 		this.dataView = new DataView( buffer );
 
 		const u8arr = new Uint8Array( buffer );
