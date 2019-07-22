@@ -51,11 +51,6 @@ class InvLogic extends FeatureLogic {
 		mouse.move( slot.px );
 		this.merge();
 	}
-	mergeAllSlots() {
-		for( let slot of coords.inv.pageSlots ) {
-			this.mergeSlot( slot );
-		};
-	}
 	//mergeEquip
 	//mergeAll
 	applyAllBoostsToCube() {

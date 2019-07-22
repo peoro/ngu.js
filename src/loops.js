@@ -78,7 +78,11 @@ class LoopRunner {
 			fixInv: this.mkRule( `fix inventory`, async function() {
 				logic.inv.goTo();
 				logic.inv.applyAllBoostsToCube();
-				logic.inv.mergeAllSlots();
+
+				for( let slot of coords.inv.pageSlots ) {
+					logic.inv.mergeSlot( slot );
+					await this.sync();
+				};
 			}),
 
 			snipeBoss: this.mkRule( `snipe boss`, async function() {

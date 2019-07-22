@@ -43,8 +43,8 @@ async function main() {
 var {coords, colors} = nguJsLib.ngu;`);
 		space();
 		comment(`Draw a point or a rect for debugging:`);
-		code(`nguJs.debug( coords.inv.slot(5,2) );
-nguJs.debug( coords.inv.slot(5,2).center );
+		code(`coords.inv.slot(5,2).debug();
+coords.inv.slot(5,2).center.debug();
 coords.inv.slot(5,2).toString();`);
 		space();
 		comment(`Run some small pieces of logic:`);

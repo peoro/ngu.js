@@ -149,7 +149,7 @@ class Mouse {
 		this.p = px( 0, 0 );
 
 		if( ui ) {
-			const vMouse = new Point( {color:`red`} );
+			const vMouse = new Point( 'vMouse' );
 			vMouse.show( ui );
 			this.vMouse = vMouse;
 		}

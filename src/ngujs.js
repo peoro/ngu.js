@@ -31,24 +31,6 @@ class NguJs {
 		// console.log( `focus!` );
 		window.dispatchEvent( mkEvent(FocusEvent, `focus`) );
 	}
-	async debug( coord, s=3 ) {
-		let el;
-		// point
-		if( coord.hasOwnProperty('x') ) {
-			el = new ui.Point( {size:7} );
-			el.move( coord );
-			el.show( this.ui );
-		}
-		// rect
-		if( coord.hasOwnProperty('topLeft') ) {
-			el = new ui.Rect();
-			el.set( coord );
-			el.show( this.ui );
-		}
-
-		await wait( s );
-		el.hide();
-	}
 
 	async destroy() {
 		window.removeEventListener( 'blur', this.focus );
