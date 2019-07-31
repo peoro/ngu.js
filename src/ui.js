@@ -6,7 +6,10 @@ const css = require('./index.scss'); // CSS (both for UI and GUI
 
 class UI {
 	constructor() {
-		console.assert( ! document.getElementById(`nguJsDiv`) );
+		while( document.getElementById(`nguJsDiv`) ) {
+			console.warn( `Found an instance of NGU.js still installed, uhm...` );
+			document.getElementById(`nguJsDiv`).remove();
+		}
 
 		const div = this.div = document.createElement(`div`);
 		div.id = `nguJsDiv`;

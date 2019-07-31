@@ -2,6 +2,7 @@
 // generic IO functions (not specific to NGU or any game)
 
 const {px} = require('./util.js');
+const {PixelDetector} = require('./color.js');
 const {Point, Rect} = require('./ui.js');
 
 
@@ -226,6 +227,10 @@ Keyboard.keys = {
 
 const W = 960, H = 600;
 
+const tmpCanvas = document.createElement('canvas');
+const tmpCtx = tmpCanvas.getContext('2d');
+
+
 class Framebuffer {
 	constructor( io, canvas ) {
 		console.assert( canvas.width === W && canvas.height === H, `Framebuffer is currently meant to only work with ${W}x${H} canvases (canvas is ${canvas.width}x${canvas.height})` );
@@ -242,13 +247,72 @@ class Framebuffer {
 		});
 	}
 
+	getOffset( p ) {
+		return p.x + (H-p.y-1)*W;
+	}
 	getPixel( p ) {
 		console.assert( p.hasOwnProperty('x') && p.hasOwnProperty('y'), `${p} not a px...` );
 		console.assert( p.every(Number.isInteger), `${p} not integer` );
-		const offset = p.x + (H-p.y-1)*W;
-		return this.dataView.getUint32( offset*4, false );
+		return this.dataView.getUint32( this.getOffset(p)*4, false );
+	}
+
+	getView( rect ) {
+		return new ImageView( this, rect );
 	}
 }
+
+class ImageView {
+	constructor( fb, rect ) {
+		Object.assign( this, {fb, rect} );
+	}
+
+	pxToSrc( p ) {
+		return p.clone().add( this.rect.topLeft );
+	}
+	getOffset( p ) {
+		return this.fb.getOffset( this.pxToSrc(p) );
+	}
+	getPixel( p ) {
+		return this.fb.getPixel( this.pxToSrc(p) );
+	}
+
+	toImage() {
+		const {fb, rect} = this;
+		const img = document.createElement(`img`);
+
+		const width = tmpCanvas.width = rect.width;
+		const height = tmpCanvas.height = rect.height;
+		const imgData = tmpCtx.createImageData( width, height );
+		const {data} = imgData;
+
+		// copying the data from the framebuffer image into `data`
+		// NOTE(peoro): if this needs optimization, we can use...
+		// - TypedArray.prototype.subarray()
+		// - TypedArray.prototype.set()
+		// to copy the image view line by line
+		rect.forEach( (p)=>{
+			p.sub( rect.topLeft );
+
+			const srcOffset = this.getOffset( p );
+			const dstOffset = p.x + p.y*width;
+			for( let i = 0; i < 4; ++i ) {
+				data[ dstOffset*4+i ] = fb.dataView.getUint8( srcOffset*4+i );
+			}
+		});
+
+		tmpCtx.putImageData( imgData, 0, 0 );
+		img.src = tmpCanvas.toDataURL();
+		return img;
+	}
+}
+
+
+// adding a `detect :: Framebuffer -> value` method to `PixelDetector`
+PixelDetector.prototype.detect = function( fb=nguJs.io.framebuffer ) {
+	const color = fb.getPixel( this.offset );
+	return this.colorMap.get( color );
+};
+
 
 module.exports = {
 	mkEvent,

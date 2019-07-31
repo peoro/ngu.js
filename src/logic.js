@@ -4,7 +4,7 @@
 const {px} = require('./util.js');
 const {seq} = require('./util.js');
 const {Keyboard} = require('./io.js');
-const {coords, feats, colors} = require('./ngu.js');
+const ngu = require('./ngu.js');
 
 class Logic {
 	constructor() {
@@ -14,12 +14,6 @@ class Logic {
 
 	getRidOfMouse() {
 		return nguJs.io.mouse.move( px(-1000,-1000) );
-	}
-
-	toFeat( feature ) {
-		const {mouse} = nguJs.io;
-		mouse.move( coords.feat.buttons[feature].center );
-		mouse.click();
 	}
 
 	queryPixel( pixelColor, baseObj ) {
@@ -38,12 +32,13 @@ class FeatureLogic {
 		this.logic = logic;
 	}
 
-	goTo() { return this.logic.toFeat( this.feature ); }
+	// goTo() { return this.logic.toFeat( this.feature ); }
+	goTo() { nguJs.io.mouse.move( this.feature.rect.center ); return nguJs.io.mouse.click(); }
 }
 
 class InvLogic extends FeatureLogic {
 	constructor( logic ) {
-		super( feats.inv, logic );
+		super( ngu.features.buttons.inv, logic );
 	}
 	merge() { return nguJs.io.keyboard.press( Keyboard.keys.d ); }
 	mergeSlot( slot ) {
@@ -55,7 +50,7 @@ class InvLogic extends FeatureLogic {
 	//mergeAll
 	applyAllBoostsToCube() {
 		const {mouse} = nguJs.io;
-		mouse.move( coords.inv.equip.cube.center );
+		mouse.move( ngu.inv.equip.cube.center );
 		mouse.click( 2 );
 	}
 }
@@ -63,13 +58,13 @@ class InvLogic extends FeatureLogic {
 
 class AdvLogic extends FeatureLogic {
 	constructor( logic ) {
-		super( feats.adv, logic );
+		super( ngu.features.buttons.adv, logic );
 	}
 
 	getMovesInfo() {
 		const {logic} = this;
 		const {moveActive, moveState} = colors.adv;
-		const moveObj = coords.adv.moves.move;
+		const moveObj = ngu.adv.moves.move;
 
 		const result = {};
 

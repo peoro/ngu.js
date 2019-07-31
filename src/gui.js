@@ -18,6 +18,11 @@ function createElement( parent, tag, opts={}, fn=noop ) {
 function createTextNode( parent, text ) {
 	parent.appendChild( document.createTextNode(text) );
 }
+function clearElement( el ) {
+	while( el.firstChild ) {
+		el.removeChild( el.firstChild );
+	}
+}
 
 class Gui {
 	constructor( nguJs ) {
@@ -45,7 +50,7 @@ class Gui {
 				createElement( p, `span`, {textContent:`none`}, (span)=>{
 					div.addEventListener( `nguJs.loop`, (e)=>{
 						span.textContent = e.detail || `none`;
-						stopSpan.style.visibility = e.detail ? `visible` : `hidden`;
+						stopSpan.style.visibility = e.detail ? `inherit` : `hidden`;
 					});
 				});
 
@@ -58,12 +63,38 @@ class Gui {
 			});
 
 			// loop buttons
-			const mkA = (textContent, href)=>{
-				createElement( controlDiv, `a`, {className:`loop`, textContent, href} );
+			const mkA = (textContent, fn)=>{
+				createElement( controlDiv, `a`, {className:`loop`, href:`javascript:void 0;`, textContent}, (a)=>{
+					// TODO(peoro): place a single event listener on the whole `controlDiv` that routes events
+					a.addEventListener( `click`, fn );
+				});
 			};
-			mkA( `Merge everything`, `javascript:void nguJs.loops.fixInv();` );
-			mkA( `Snipe boss`, `javascript:void nguJs.loops.snipeBoss();` );
-			mkA( `Snipe boss and merge everything`, `javascript:void nguJs.loops.mainLoop();` );
+			mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
+			mkA( `Snipe boss`, ()=>{ nguJs.loops.snipeBoss(); } );
+			mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.mainLoop(); } );
+
+			mkA( `Get slot items`, async ()=>{
+				clearElement( invDiv );
+				nguJs.logic.inv.goTo();
+				await nguJs.loopRunner.sync( true ); // TODO(peoro): move `sync` outside of `loops`...
+				nguJsLib.ngu.inv.inventory.forEach( (slot)=>{
+					const img = nguJs.io.framebuffer.getView( slot.innerRect ).toImage();
+					invDiv.appendChild( img );
+				});
+			});
+			const invDiv = createElement( controlDiv, `div` );
+
+			/*
+			try {
+				requestAnimationFrame( ()=>{
+					const img = nguJs.io.framebuffer.getView( nguJsLib.ngu.coords.inv.equip.cube ).toImage();
+					controlDiv.appendChild( img );
+				}, 0 );
+			} catch( err ) {
+				console.warn( `Couldn't load img D:` );
+				console.error( err );
+			}
+			*/
 
 			// reload NGU.js form
 			createElement( controlDiv, `form`, {className:`reload`}, (form)=>{

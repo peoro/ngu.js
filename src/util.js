@@ -5,8 +5,8 @@ class Pixel {
 		Object.assign( this, {x,y} );
 	}
 	toString() { return `px(${this.x},${this.y})`; }
-	copy( px1 ) {
-		const {x, y} = px1;
+	copy( px2 ) {
+		const {x, y} = px2;
 		Object.assign( this, {x,y} );
 	}
 	clone() { return new Pixel( this.x ,this.y ); }
@@ -30,7 +30,6 @@ class Rect {
 	constructor( topLeft, bottomRight ) {
 		Object.assign( this, {topLeft, bottomRight} );
 	}
-	toString() { return `rect(${this.topLeft}, ${this.bottomRight})`; }
 	get left() { return this.topLeft.x; }
 	get right() { return this.bottomRight.x; }
 	get top() { return this.topLeft.y; }
@@ -39,6 +38,31 @@ class Rect {
 	get width() { return this.right - this.left; }
 	get height() { return this.bottom - this.top; }
 	get size() { return px(this.width, this.height); }
+
+	toString() { return `rect(${this.topLeft}, ${this.bottomRight})`; }
+	copy( rect2 ) {
+		this.topLeft.copy( rect2.topLeft );
+		this.bottomRight.copy( rect2.bottomRight );
+	}
+	clone() { return Rect.fromRect(this); }
+	forEach( fn ) {
+		const {top, bottom, left, right} = this;
+		for( let y = top; y < bottom; ++y ) {
+			for( let x = left; x < right; ++x ) {
+				fn( px(x, y) );
+			}
+		}
+	}
+	shrinkBy( rect2 ) {
+		this.topLeft.add( rect2.topLeft );
+		this.bottomRight.sub( rect2.bottomRight );
+		return this;
+	}
+	add( rect2 ) {
+		this.topLeft.add( rect2.topLeft );
+		this.bottomRight.add( rect2.bottomRight );
+		return this;
+	}
 }
 const rect = (tl, br)=>new Rect( tl, br );
 
