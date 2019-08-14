@@ -69,11 +69,19 @@ class GridLayout extends Widget{
 class Bar extends Widget {
 	constructor( rect ) { super(rect); }
 
+	getInsideRect() {
+		const {topLeft, bottomRight} = this.rect;
+		const {top, left, right} = this.constructor;
+		return Rect.fromCorners( topLeft.clone().add(px(left,top)), bottomRight.clone().add(px(right,top)) );
+	}
 	getStateDetectorForRatio( ratio ) {
-		TODO();
+		console.assert( ratio >= 0 && ratio <= 1, `Bar ratio must be between 0 and 1, ${ratio} not valid` );
+		const {topLeft, topRight} = this.getInsideRect();
+		return this.constructor.barDetector.relativeTo( topLeft.lerp(topRight, ratio) );
 	}
 }
-
+Bar.top = 1; Bar.left = 2; Bar.right = -2;
+Bar.barDetector = new PixelDetector( px(0,0), new BrightnessThreshold(true, false) );
 
 class RegularButton extends Widget {
 	constructor( rect ) { super(rect); }

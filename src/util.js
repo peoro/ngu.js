@@ -17,6 +17,8 @@ class Pixel {
 	sub( px2 ) { return this.zip( px2, (a,b)=>a-b ); }
 	multiply( px2 ) { return this.zip( px2, (a,b)=>a*b ); }
 	divide( px2 ) { return this.zip( px2, (a,b)=>a/b ); }
+	multiplyScalar( c ) { return this.map( n=>n*c ); }
+	lerp( px2, c ) { return this.add( px2.clone().sub(this).multiplyScalar(c) ); }
 	floor() { return this.map( Math.floor ); }
 	round() { return this.map( Math.round ); }
 	ceil() { return this.map( Math.ceil ); }
@@ -27,6 +29,12 @@ class Rect {
 	static fromRect( rect ) {
 		return new Rect( px(rect.left, rect.top), px(rect.right, rect.bottom) );
 	}
+	static fromTLSize( topLeft, size ) {
+		return new Rect( topLeft.clone(), topLeft.clone().add(size) );
+	}
+	static fromCorners( topLeft, bottomRight ) {
+		return new Rect( topLeft, bottomRight );
+	}
 	constructor( topLeft, bottomRight ) {
 		Object.assign( this, {topLeft, bottomRight} );
 	}
@@ -34,6 +42,8 @@ class Rect {
 	get right() { return this.bottomRight.x; }
 	get top() { return this.topLeft.y; }
 	get bottom() { return this.bottomRight.y; }
+	get topRight() { return px(this.right, this.top); }
+	get bottomLeft() { return px(this.left, this.bottom); }
 	get center() { return px( (this.left + this.right)/2, (this.top + this.bottom)/2 ); };
 	get width() { return this.right - this.left; }
 	get height() { return this.bottom - this.top; }

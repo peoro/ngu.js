@@ -10,7 +10,7 @@
 
 const {px, rect} = require('./util.js');
 const {PixelDetector, Palette} = require('./color.js');
-const {GridLayout, RegularButton, MoveButton, ItemSlot, InventorySlot, ItemListSlot} = require('./ngu_widgets.js')
+const {GridLayout, Bar, RegularButton, MoveButton, ItemSlot, InventorySlot, ItemListSlot} = require('./ngu_widgets.js')
 
 
 // canvas size
@@ -64,10 +64,10 @@ const ngu = {
 			locked:px(0,2), regen:px(1,2), locked:px(2,2), locked:px(3,2), locked:px(4,2), move69:px(5,2),
 		}),
 		self: {
-			hpBar: rect(px(317,399), px(547,424)),
+			hpBar: new Bar( rect(px(317,399), px(547,424)) ),
 		},
 		enemy: {
-			hpBar: rect(px(705,399), px(935,424)),
+			hpBar: new Bar( rect(px(705,399), px(935,424)) ),
 		},
 		bossDetector: new PixelDetector( px(715,278), new Palette([[0xf7ef29ff, true]], false) ),
 	},
