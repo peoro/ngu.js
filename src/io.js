@@ -233,10 +233,6 @@ for( let keyCode = 65; keyCode < 91; ++keyCode ) {
 
 const W = 960, H = 600;
 
-const tmpCanvas = document.createElement('canvas');
-const tmpCtx = tmpCanvas.getContext('2d');
-
-
 class Framebuffer {
 	constructor( io, canvas ) {
 		console.assert( canvas.width === W && canvas.height === H, `Framebuffer is currently meant to only work with ${W}x${H} canvases (canvas is ${canvas.width}x${canvas.height})` );
@@ -283,13 +279,10 @@ class ImageView {
 		return this.fb.getPixel( this.pxToSrc(p) );
 	}
 
-	toImage() {
+	toImageData() {
 		const {fb, rect} = this;
-		const img = document.createElement(`img`);
-
-		const width = tmpCanvas.width = rect.width;
-		const height = tmpCanvas.height = rect.height;
-		const imgData = tmpCtx.createImageData( width, height );
+		const {width, height} = rect;
+		const imgData = new ImageData( width, height );
 		const {data} = imgData;
 
 		// copying the data from the framebuffer image into `data`
@@ -307,12 +300,23 @@ class ImageView {
 			}
 		});
 
+		return imgData
+	}
+	/*
+	toImage() {
+		const {fb, rect} = this;
+		const img = document.createElement(`img`);
+
+		const imgData = this.toImageData(){;
+		tmpCanvas.width = imgData.width;
+		tmpCanvas.height = imgData.height;
 		tmpCtx.putImageData( imgData, 0, 0 );
 		img.src = tmpCanvas.toDataURL();
+
 		return img;
 	}
+	*/
 }
-
 
 // adding a `detect :: Framebuffer -> value` method to `PixelDetector`
 PixelDetector.prototype.detect = function( fb=nguJs.io.framebuffer ) {

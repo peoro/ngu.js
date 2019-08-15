@@ -10,6 +10,7 @@ class LoopRunner {
 		this.shouldStop = false;
 	}
 
+	// TODO(peoro): move `sync` outside of `loops`...
 	async sync( nextFrame ) {
 		// waiting until next frame
 		if( nextFrame ) { await nguJs.io.nextFrame; }

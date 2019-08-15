@@ -37,6 +37,13 @@ const grids = {
 	inventory: {
 		inventory: new GridLayout( rect(px(326,304), px(926,554)), px(12, 5), InventorySlot ),
 		pages: new GridLayout( rect(px(328,559), px(913,589)), px(9, 1), RegularButton ),
+		itemList: {
+			pages: new GridLayout( rect(px(316,80), px(598,110)), px(4, 1), RegularButton ), // these buttons are irregular, but fuck it :x
+			items: new GridLayout( rect(px(323,134), px(923,584)), px(12, 9), ItemListSlot ),
+
+			// TODO(peoro): investigate the various confirmation popups... do they share size or anything? :F
+			clearConfirmationButtons: new GridLayout( rect(px(396,302), px(553,333)), px(2,1), RegularButton ),
+		}
 	},
 	equipment: {
 		equipment: new GridLayout( rect(px(352,39), px(652,239)), px(6, 4), InventorySlot ),
@@ -83,7 +90,15 @@ const ngu = {
 		feats: grids.equipment.features.createObj({
 			wtf:0, itemList:1, daycare:2, fragments:3, statsBreakdown:4,
 		}),
-	}
+	},
+	itemList: {
+		clear: new RegularButton( rect(px(320,11), px(390,46)) ),
+		clearDialog: grids.inventory.itemList.clearConfirmationButtons.createObj({
+			yes:px(0,0), no:px(1,0),
+		}),
+		pages: grids.inventory.itemList.pages.createAll(),
+		items: grids.inventory.itemList.items.createAll(),
+	},
 };
 
 

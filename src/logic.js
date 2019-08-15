@@ -24,6 +24,12 @@ class Logic {
 		const color = nguJs.io.framebuffer.getPixel( base.clone().add(pixelColor.offset) );
 		return pixelColor.get( color );
 	}
+
+	click( widget ) {
+		const {mouse} = nguJs.io;
+		mouse.move( widget.center );
+		return mouse.click();
+	}
 }
 
 class FeatureLogic {

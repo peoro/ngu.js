@@ -75,6 +75,7 @@ $ngu-js-button-width: 38px;
 		border: $border-size solid black;
 		opacity: .95;
 		padding: 10px;
+		padding-bottom: 10px + $ngu-js-button-height;
 		z-index: 5000;
 
 		span.dev {
@@ -88,8 +89,13 @@ $ngu-js-button-width: 38px;
 			user-select: none;
 		}
 
-		a.loop {
-			display: block;
+		.content {
+			height: 100%;
+			overflow: auto;
+
+			a.loop {
+				display: block;
+			}
 		}
 
 		form.reload {

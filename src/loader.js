@@ -35,3 +35,6 @@ module.exports = {
 	document.head.appendChild( s );
 })();
 */
+
+// NOTE: you can use serveo.net to host your own development version:
+// ssh -R 80:localhost:8042 serveo.net

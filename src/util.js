@@ -102,6 +102,19 @@ function withTimeout( promise, s=3 ) {
 	return Promise.race( [promise, timeout] );
 }
 
+const tmpCanvas = document.createElement('canvas');
+const tmpCtx = tmpCanvas.getContext('2d');
+function imageDataToURL( imgData ) {
+	const canvas = tmpCanvas
+	canvas.width = imgData.width;
+	canvas.height = imgData.height;
+
+	const ctx = tmpCtx;
+	ctx.putImageData( imgData, 0, 0 );
+
+	return canvas.toDataURL();
+}
+
 module.exports = {
 	Pixel, px,
 	Rect, rect,
@@ -109,4 +122,5 @@ module.exports = {
 	seq,
 	timeSec,
 	withTimeout,
+	imageDataToURL,
 };
