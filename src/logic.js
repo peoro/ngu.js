@@ -127,11 +127,14 @@ class AdvLogic extends FeatureLogic {
 	prevArea() { return nguJs.io.keyboard.press( Keyboard.keys.leftArrow ); }
 	nextArea() { return nguJs.io.keyboard.press( Keyboard.keys.rightArrow ); }
 	attack( move ) {
-		// TODO(peoro): let's use key shortcuts instead of moving mouse back and forth D:
-		const {mouse} = nguJs.io;
-		mouse.move( move.center );
-		mouse.click();
-		this.logic.getRidOfMouse();
+		const key = Keyboard.keys[move.key];
+		return nguJs.io.keyboard.press( key );
+
+		// the following also works, but it's slower (and creates popups that hide move status
+		//const {mouse} = nguJs.io;
+		//mouse.move( move.center );
+		//mouse.click();
+		//this.logic.getRidOfMouse();
 	}
 }
 

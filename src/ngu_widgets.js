@@ -42,8 +42,14 @@ class GridLayout extends Widget{
 	}
 
 	createWidget( p ) {
-		const pos = p instanceof Pixel ? p : this.idxToPos(p);
-		return new this.ButtonType( this.computeItemRect(pos) );
+		if( this.ButtonType.new ) {
+			// using widget's custom constructor
+			return this.ButtonType.new( this, p );
+		}
+		else {
+			const pos = p instanceof Pixel ? p : this.idxToPos(p);
+			return new this.ButtonType( this.computeItemRect(pos) );
+		}
 	}
 	createWidgets( arr ) {
 		// TODO(peoro): instead of using `n` here to look for the widget in the grid, pass the grid (`this`) as well as `n` to the widget constructor, so that it can be handled the way the widget prefers it
@@ -93,7 +99,17 @@ class RegularButton extends Widget {
 //]);
 
 class MoveButton extends RegularButton {
-	constructor( rect ) { super(rect); }
+	static new( moveGrid, {i, key} ) {
+		const rect = moveGrid.computeItemRect( moveGrid.idxToPos(i) );
+		return new MoveButton( rect, key );
+	}
+
+	constructor( rect, key ) {
+		super(rect);
+		this.key = key;
+	}
+
+	toString() { return this.key; }
 
 	get activeDetector() { return this.constructor.activeDetector.relativeTo(this.rect.topLeft); }
 	get stateDetector() { return this.constructor.stateDetector.relativeTo(this.rect.topLeft); }
@@ -102,14 +118,15 @@ MoveButton.activeDetector = new PixelDetector( px(1,1), new Palette([
 	[0xffeb04ff, true],
 	[0xc7c4c7ff, false],
 ]) );
+// the move state color fades bewtween `ready` and `unavailable`, thus the intermediate values would give us issues...
 MoveButton.stateDetector = new PixelDetector( px(8,8), new Palette([
 	[0xf89b9bff, `ready`], // rows 1
-	[0x7c4e4eff, `unavailable`], // rows 1
+	// [0x7c4e4eff, `unavailable`], // rows 1
 	[0x6687a3ff, `ready`], // row 2
-	[0x334452ff, `unavailable`], // row 2
+	// [0x334452ff, `unavailable`], // row 2
 	[0xc39494ff, `ready`], // row 3
-	[0x624a4aff, `unavailable`], // row 3
-]) );
+	// [0x624a4aff, `unavailable`], // row 3
+], `unavailable`) );
 
 
 class ItemSlot extends Widget {

@@ -215,12 +215,18 @@ class Keyboard {
 	}
 };
 Keyboard.keys = {
-	d: {code:'KeyD', key:'d', keyCode:68},
 	leftArrow: {keyCode:37},
 	upArrow: {keyCode:38},
 	rightArrow: {keyCode:39},
 	downArrow: {keyCode:40},
 };
+// adding all the letters to `Keyboard.keys`
+for( let keyCode = 65; keyCode < 91; ++keyCode ) {
+	const char = String.fromCharCode( keyCode );
+	const key = char.toLowerCase();
+	const code = `Key${char}`;
+	Keyboard.keys[key] = {code, key, keyCode};
+}
 
 
 // output part: reading information from the canvas

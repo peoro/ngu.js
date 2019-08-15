@@ -59,9 +59,9 @@ const ngu = {
 	},
 	adv: {
 		moves: grids.adventure.moves.createObj({
-			idle:px(0,0), regular:px(1,0), strong:px(2,0), parry:px(3,0), piercing:px(4,0), ultimate:px(5,0),
-			block:px(0,1), defBuff:px(1,1), heal:px(2,1), offBuff:px(3,1), charge:px(4,1), ultBuff:px(5,1),
-			locked:px(0,2), regen:px(1,2), locked:px(2,2), locked:px(3,2), locked:px(4,2), move69:px(5,2),
+			idle:{i:0, key:`q`}, regular:{i:1, key:`w`}, strong:{i:2, key:`e`}, parry:{i:3, key:`r`}, piercing:{i:4, key:`t`}, ultimate:{i:5, key:`y`},
+			block:{i:6, key:`a`}, defBuff:{i:7, key:`s`}, heal:{i:8, key:`d`}, offBuff:{i:9, key:`f`}, charge:{i:10, key:`g`}, ultBuff:{i:11, key:`h`},
+			locked:{i:12, key:`z`}, regen:{i:13, key:`x`}, locked:{i:14, key:`c`}, locked:{i:15, key:`v`}, locked:{i:16, key:`b`}, move69:{i:17, key:`n`},
 		}),
 		self: {
 			hpBar: new Bar( rect(px(317,399), px(547,424)) ),
