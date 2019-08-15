@@ -43,14 +43,14 @@ class InvLogic extends FeatureLogic {
 	merge() { return nguJs.io.keyboard.press( Keyboard.keys.d ); }
 	mergeSlot( slot ) {
 		const {mouse} = nguJs.io;
-		mouse.move( slot.px );
+		mouse.move( slot.center );
 		this.merge();
 	}
 	//mergeEquip
 	//mergeAll
 	applyAllBoostsToCube() {
 		const {mouse} = nguJs.io;
-		mouse.move( ngu.inv.equip.cube.center );
+		mouse.move( ngu.inv.cube.center );
 		mouse.click( 2 );
 	}
 }
@@ -62,26 +62,66 @@ class AdvLogic extends FeatureLogic {
 	}
 
 	getMovesInfo() {
-		const {logic} = this;
-		const {moveActive, moveState} = colors.adv;
-		const moveObj = ngu.adv.moves.move;
-
 		const result = {};
 
-		for( let name in moveObj ) {
-			const move = moveObj[name];
-			const active = logic.queryPixel( moveActive, move );
-			const state = logic.queryPixel( moveState, move );
+		const {moves} = ngu.adv;
+		for( let name in moves ) {
+			const move = moves[name];
+			const active = move.activeDetector.detect();
+			const state = move.stateDetector.detect();
 			result[name] = {active, state, ready:(state===`ready` && !active) };
 		}
 
 		return result;
 	}
-	isEnemyAlive() { return this.logic.queryPixel( colors.adv.enemyAlive ); }
-	isBoss() { return this.logic.queryPixel( colors.adv.boss ); }
+	isEnemyAlive() { return ngu.adv.enemy.hpBar.getStateDetectorForRatio(0).detect(); }
+	isBoss() { return ngu.adv.bossDetector.detect(); }
 
 	hpRatioIsAtLeast( ratio ) {
-		return this.logic.queryPixel( colors.adv.ownHpRatioAtLeast(ratio) );
+		return ngu.adv.self.hpBar.getStateDetectorForRatio(ratio).detect();
+	}
+
+	chooseMove() {
+		const {logic} = this;
+		const {moves} = ngu.adv;
+		const moveInfo = logic.adv.getMovesInfo();
+
+		if( moveInfo.idle.active ) {
+			console.log( `disabling idle attack` );
+			return moves.idle;
+		}
+
+		const reallyNeedHeal = ! logic.adv.hpRatioIsAtLeast( .5 );
+		if( reallyNeedHeal ) {
+			console.log( `need urgent heal!` );
+			if( moveInfo.defBuff.ready ) { return moves.defBuff; }
+			if( moveInfo.heal.ready ) { return moves.heal; }
+			if( moveInfo.regen.ready ) { return moves.regen; }
+		}
+
+		if( ! this.isEnemyAlive() ) {
+			const needHeal = ! logic.adv.hpRatioIsAtLeast( .8 );
+			if( needHeal ) {
+				if( moveInfo.heal.ready ) { return moves.heal; }
+				if( moveInfo.regen.ready ) { return moves.regen; }
+			}
+			if( moveInfo.parry.ready ) { return moves.parry; }
+			return;
+		}
+
+		// actual fighting
+		const fullHP = logic.adv.hpRatioIsAtLeast( 1 ); // if we're in a zone where enemies are easy to kill, let's not waste time charging up
+		if( !fullHP && moveInfo.ultimate.ready && (moveInfo.charge.ready || moveInfo.charge.active) ) {
+			if( moveInfo.offBuff.ready ) { return moves.offBuff; }
+			if( moveInfo.ultBuff.ready ) { return moves.ultBuff; }
+			if( moveInfo.charge.ready ) { return moves.charge; }
+		}
+		if( moveInfo.ultimate.ready ) { return moves.ultimate; }
+		if( moveInfo.piercing.ready ) { return moves.piercing; }
+		if( moveInfo.strong.ready ) { return moves.strong; }
+		if( moveInfo.regular.ready ) { return moves.regular; }
+
+		// console.log( `no attack ready` );
 	}
 
 	prevArea() { return nguJs.io.keyboard.press( Keyboard.keys.leftArrow ); }
@@ -89,7 +129,7 @@ class AdvLogic extends FeatureLogic {
 	attack( move ) {
 		// TODO(peoro): let's use key shortcuts instead of moving mouse back and forth D:
 		const {mouse} = nguJs.io;
-		mouse.move( move.px );
+		mouse.move( move.center );
 		mouse.click();
 		this.logic.getRidOfMouse();
 	}

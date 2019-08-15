@@ -252,7 +252,8 @@ class Framebuffer {
 	}
 	getPixel( p ) {
 		console.assert( p.hasOwnProperty('x') && p.hasOwnProperty('y'), `${p} not a px...` );
-		console.assert( p.every(Number.isInteger), `${p} not integer` );
+		// console.assert( p.every(Number.isInteger), `${p} not integer` );
+		console.assert( p.every(Number.isFinite), `${p} not a number` );
 		return this.dataView.getUint32( this.getOffset(p)*4, false );
 	}
 
@@ -309,8 +310,13 @@ class ImageView {
 
 // adding a `detect :: Framebuffer -> value` method to `PixelDetector`
 PixelDetector.prototype.detect = function( fb=nguJs.io.framebuffer ) {
-	const color = fb.getPixel( this.offset );
+	const color = fb.getPixel( this.offset.clone().round() );
 	return this.colorMap.get( color );
+};
+PixelDetector.prototype.debug = function( fb=nguJs.io.framebuffer ) {
+	const color = fb.getPixel( this.offset.clone().round() );
+	console.log( `${this.offset}: #${color.toString(16)} ➜ ${this.colorMap.get(color)}` );
+	return this.offset.debug();
 };
 
 

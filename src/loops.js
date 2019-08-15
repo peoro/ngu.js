@@ -1,8 +1,8 @@
 
 // high level strategies
 
-const {timeSec} = require('./util.js');
-const {coords, feats} = require('./ngu.js');
+const {timeSec, withTimeout} = require('./util.js');
+const ngu = require('./ngu.js');
 
 class LoopRunner {
 	constructor() {
@@ -79,7 +79,7 @@ class LoopRunner {
 				logic.inv.goTo();
 				logic.inv.applyAllBoostsToCube();
 
-				for( let slot of coords.inv.pageSlots ) {
+				for( let slot of ngu.inv.inventory ) {
 					logic.inv.mergeSlot( slot );
 					await this.sync();
 				};
@@ -87,8 +87,7 @@ class LoopRunner {
 
 			snipeBoss: this.mkRule( `snipe boss`, async function() {
 				logic.adv.goTo();
-
-				const {move} = coords.adv.moves;
+				logic.getRidOfMouse();
 
 				let bossFound = false;
 				let lastEnemyTime = timeSec();
@@ -96,7 +95,6 @@ class LoopRunner {
 				while( true ) {
 					await this.sync( true ); // making sure that the pixel we're using are fresh
 
-					const moveInfo = logic.adv.getMovesInfo();
 					const isBoss = logic.adv.isBoss();
 					const isEnemyAlive = logic.adv.isEnemyAlive();
 
@@ -110,66 +108,83 @@ class LoopRunner {
 					}
 
 					if( now - lastEnemyTime > 10 ) {
-						// hmm... I'm probably dead :(
+						// hmm... I'm probably dead and back to safe zone :(
 						console.log( `Am I... Dead?! D:` );
 						return;
 					}
 
-					const chosenMove = (()=>{
-						if( moveInfo.idle.active ) {
-							console.log( `disabling idle attack` );
-							return move.idle;
-						}
+					if( isEnemyAlive && ! isBoss ) {
+						console.log( `!boss: skipping` );
+						logic.adv.prevArea();
+						logic.adv.nextArea();
+						continue;
+					}
 
-						if( isEnemyAlive && ! isBoss ) {
-							console.log( `!boss: skipping` );
-							logic.adv.prevArea();
-							logic.adv.nextArea();
-							return;
-						}
-
-						const reallyNeedHeal = ! logic.adv.hpRatioIsAtLeast( .5 );
-						if( reallyNeedHeal ) {
-							console.log( `need urgent heal!` );
-							if( moveInfo.defBuff.ready ) { return move.defBuff; }
-							if( moveInfo.heal.ready ) { return move.heal; }
-							if( moveInfo.regen.ready ) { return move.regen; }
-						}
-
-						if( ! isEnemyAlive ) {
-							const needHeal = ! logic.adv.hpRatioIsAtLeast( .8 );
-							if( needHeal ) {
-								if( moveInfo.heal.ready ) { return move.heal; }
-								if( moveInfo.regen.ready ) { return move.regen; }
-							}
-							if( moveInfo.parry.ready ) { return move.parry; }
-							return;
-						}
-
-						// actual fighting
-						if( moveInfo.ultimate.ready && (moveInfo.charge.ready || moveInfo.charge.active) ) {
-							if( moveInfo.offBuff.ready ) { return move.offBuff; }
-							if( moveInfo.ultBuff.ready ) { return move.ultBuff; }
-							if( moveInfo.charge.ready ) { return move.charge; }
-						}
-						if( moveInfo.ultimate.ready ) { return move.ultimate; }
-						if( moveInfo.piercing.ready ) { return move.piercing; }
-						if( moveInfo.strong.ready ) { return move.strong; }
-						if( moveInfo.regular.ready ) { return move.regular; }
-
-						// console.log( `no attack ready` );
-					})();
-
-					if( chosenMove ) {
-						console.log( `Using move`, chosenMove.name );
-						logic.adv.attack( chosenMove );
+					const move = logic.adv.chooseMove();
+					if( move ) {
+						console.log( `Using move`, move );
+						move.rect.debug( .75 );
+						logic.adv.attack( move );
 					}
 				}
 			}),
 
-			mainLoop: this.mkRule( `snipe and fix inventory`, async function(){
+			killAll: this.mkRule( `kill all`, async function() {
+				logic.adv.goTo();
+				logic.getRidOfMouse();
+
+				let lastEnemyTime = timeSec();
+
+				while( true ) {
+					await this.sync( true ); // making sure that the pixel we're using are fresh
+
+					const isEnemyAlive = logic.adv.isEnemyAlive();
+
+					const now = timeSec();
+					if( isEnemyAlive ) { lastEnemyTime = now }
+
+					if( now - lastEnemyTime > 10 ) {
+						// hmm... I'm probably dead and back to safe zone :(
+						console.log( `Am I... Dead?! D:` );
+						return;
+					}
+
+					const move = logic.adv.chooseMove();
+					if( move ) {
+						console.log( `Using move`, move );
+						move.rect.debug( .75 );
+						logic.adv.attack( move );
+					}
+				}
+			}),
+
+			snipeLoop: this.mkRule( `snipe and fix inventory`, async function(){
 				await nguJs.loops.fixInv.fn.apply( this );
 				await nguJs.loops.snipeBoss.fn.apply( this );
+			}),
+
+			killAllLoop: this.mkRule( `kill all and fix inventory`, async function(){
+				await nguJs.loops.fixInv.fn.apply( this );
+
+				// TODO(peoro): oh god @,@ it's unreal how hacky this stuff got...
+				// we really really need to start using behavior trees or something
+				const killAllP = nguJs.loops.killAll.fn.apply(this);
+				await withTimeout( killAllP, 30 ) // running `killAll` AND a timer
+					.catch( async (err)=>{
+						if( err === `stop` ) { return; } // `killAll` failed (stop was requested
+
+						// timer failed
+						console.assert( err === `Timeout on a promise after 30s` );
+						this.shouldStop = true; // then, to stop `killAll`, we set this var
+						await killAllP.catch( ()=>{} ); // we wait for `killAll` to finish, ignoring its `stop` error
+						this.shouldStop = false; // and reset this var so that WE don't stop DDD:
+					});
+
+				// enabling back idle, so we keep killing while sorting out the inventory :3
+				const moveInfo = logic.adv.getMovesInfo();
+				if( ! moveInfo.idle.active ) {
+					logic.adv.attack( ngu.adv.moves.idle );
+				}
 			}),
 
 		};

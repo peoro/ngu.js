@@ -71,7 +71,9 @@ class Gui {
 			};
 			mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
 			mkA( `Snipe boss`, ()=>{ nguJs.loops.snipeBoss(); } );
-			mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.mainLoop(); } );
+			mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.snipeLoop(); } );
+			mkA( `Kill all`, ()=>{ nguJs.loops.killAll(); } );
+			mkA( `Kill all and merge everything`, ()=>{ nguJs.loops.killAllLoop(); } );
 
 			mkA( `Get slot items`, async ()=>{
 				clearElement( invDiv );

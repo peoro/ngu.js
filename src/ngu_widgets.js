@@ -16,6 +16,8 @@ class Widget {
 	constructor( rect ) {
 		this.rect = rect;
 	}
+
+	get center() { return this.rect.center; }
 }
 
 
@@ -44,6 +46,7 @@ class GridLayout extends Widget{
 		return new this.ButtonType( this.computeItemRect(pos) );
 	}
 	createWidgets( arr ) {
+		// TODO(peoro): instead of using `n` here to look for the widget in the grid, pass the grid (`this`) as well as `n` to the widget constructor, so that it can be handled the way the widget prefers it
 		return arr.map( (n)=>this.createWidget(n) );
 	}
 	createObj( obj ) {
