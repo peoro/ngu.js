@@ -5,6 +5,7 @@ const {px} = require('./util.js');
 const {seq} = require('./util.js');
 const {Keyboard} = require('./io.js');
 const ngu = require('./ngu.js');
+const assets = require('./assets.js');
 
 class Logic {
 	constructor() {
@@ -58,6 +59,16 @@ class InvLogic extends FeatureLogic {
 		const {mouse} = nguJs.io;
 		mouse.move( ngu.inv.cube.center );
 		mouse.click( 2 );
+	}
+
+	getInvInfo() {
+		return ngu.inv.inventory.map( (slot)=>{
+			// TODO: move this logic into `ItemSlot` directly....
+			const imgData = nguJs.io.framebuffer.getView( slot.innerRect ).toImageData();
+			const item = assets.items.detect( imgData.data );
+			const state = slot.stateDetector.detect();
+			return Object.assign( {item}, state );
+		});
 	}
 }
 

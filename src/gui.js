@@ -1,7 +1,8 @@
 
 const {loadNguJs} = require('./loader.js');
 const {implementTyping} = require('./fixes.js');
-const {imageDataToURL} = require('./util.js');
+const {imageDataToURL, hash} = require('./util.js');
+const assets = require('./assets.js');
 
 const noop = ()=>{};
 function createElement( parent, tag, opts={}, fn=noop ) {
@@ -104,50 +105,51 @@ class Gui {
 						await loopRunner.sync( true );
 
 						nguJsLib.ngu.itemList.items.forEach( (slot)=>{
-							// const img = nguJs.io.framebuffer.getView( slot.innerRect ).toImage();
 							const imgData = nguJs.io.framebuffer.getView( slot.innerRect ).toImageData();
-							createElement( invDiv, `img`, {src:imageDataToURL(imgData), imgData} );
+							createElement( invDiv, `img`, {
+								src: imageDataToURL(imgData),
+								title: assets.items.detect(imgData.data),
+								imgData,
+							});
 							// invDiv.appendChild( img );
 						});
 					}
 				});
 
 				mkA( `Compute item lookup table`, ()=>{
-					const imgs = Array.from( invDiv.childNodes );
-					imgs.forEach( (img, i)=>{
+					const {missing, count, hashItemListImg} = assets.items;
 
-					});
+					const imgs = Array.from( invDiv.childNodes );
+					const hashes = imgs.map( hashItemListImg );
+					console.assert( hashes.slice(0, count).every( (hash)=>hash !== missing) );
+					console.assert( hashes.slice(count).every( (hash)=>hash === missing) );
+
+					const items = hashes.slice( 0, count );
+					console.log( JSON.stringify(items, null, `\t`) );
+					console.log( `Unknown: "${hashes[hashes.length-1]}"` );
+					assets.items.items.splice( 0, items.length, ...items );
 				});
 
-				/*
 				mkA( `Get slot items`, async ()=>{
-					clearElement( invDiv );
 					nguJs.logic.inv.goTo();
 					await nguJs.loopRunner.sync( true );
+
+					clearElement( invDiv );
 					nguJsLib.ngu.inv.inventory.forEach( (slot)=>{
-						const img = nguJs.io.framebuffer.getView( slot.innerRect ).toImage();
-						invDiv.appendChild( img );
+						const imgData = nguJs.io.framebuffer.getView( slot.innerRect ).toImageData();
+						createElement( invDiv, `img`, {
+							src: imageDataToURL(imgData),
+							title: assets.items.detect(imgData.data),
+							imgData,
+						});
 					});
 				});
-				*/
 
 				//const invDiv = createElement( contentDiv, `div` );
 				// TODO: debugging only: let's reuse the same invDiv among reloads...
 				const invDiv = window.invDiv =
 					( window.invDiv && (contentDiv.appendChild(window.invDiv), window.invDiv) ) ||
 					createElement( contentDiv, `div` );
-
-				/*
-				try {
-					requestAnimationFrame( ()=>{
-						const img = nguJs.io.framebuffer.getView( nguJsLib.ngu.coords.inv.equip.cube ).toImage();
-						contentDiv.appendChild( img );
-					}, 0 );
-				} catch( err ) {
-					console.warn( `Couldn't load img D:` );
-					console.error( err );
-				}
-				*/
 			});
 
 			// reload NGU.js form

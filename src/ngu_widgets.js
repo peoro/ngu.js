@@ -146,9 +146,11 @@ class InventorySlot extends ItemSlot {
 	constructor( rect ) { super(rect); }
 }
 InventorySlot.stateDetector = new PixelDetector( px(0,0), new Palette([
-	[0xff0505ff, `protected`],
-	[0xffffffff, `normal`],
-	[0xb68855ff, `missing`],
+	[0xb68855ff, {}], // slot not unlocked
+	[0xffffffff, {exists:true,}],
+	[0xff0505ff, {exists:true, protected:true,}],
+	[0x000505ff, {exists:true, automerge:true,}],
+	[0x820582ff, {exists:true, protected:true, automerge:true,}],
 ]) );
 
 class ItemListSlot extends ItemSlot {

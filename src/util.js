@@ -1,4 +1,6 @@
 
+const md5 = require('js-md5');
+
 // geometry stuff
 class Pixel {
 	constructor( x=0, y=0 ) {
@@ -115,6 +117,18 @@ function imageDataToURL( imgData ) {
 	return canvas.toDataURL();
 }
 
+function hash( buffer, fn=x=>x ) {
+	const buf = new Uint8ClampedArray( buffer.length/4*3 );
+
+	for( let i = 0, o = 0; i < buffer.length; i += 4, o += 3 ) {
+		for( let j = 0; j < 3; ++j ) {
+			buf[o+j] = fn( buffer[i+j] );
+		}
+	}
+
+	return md5( buf );
+}
+
 module.exports = {
 	Pixel, px,
 	Rect, rect,
@@ -123,4 +137,5 @@ module.exports = {
 	timeSec,
 	withTimeout,
 	imageDataToURL,
+	hash,
 };
