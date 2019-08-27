@@ -12,9 +12,9 @@ class Pixel {
 		Object.assign( this, {x,y} );
 	}
 	clone() { return new Pixel( this.x ,this.y ); }
-	map( fn ) { this.x = fn(this.x); this.y = fn(this.y); return this; }
-	zip( px2, fn ) { this.x = fn(this.x, px2.x); this.y = fn(this.y, px2.y); return this; }
-	every( fn ) { return fn(this.x) && fn(this.y); }
+	map( fn ) { this.x = fn(this.x, `x`); this.y = fn(this.y, `y`); return this; }
+	zip( px2, fn ) { this.x = fn(this.x, px2.x, `x`); this.y = fn(this.y, px2.y, `y`); return this; }
+	every( fn ) { return fn(this.x, `x`) && fn(this.y, `y`); }
 	add( px2 ) { return this.zip( px2, (a,b)=>a+b ); }
 	sub( px2 ) { return this.zip( px2, (a,b)=>a-b ); }
 	multiply( px2 ) { return this.zip( px2, (a,b)=>a*b ); }
@@ -24,6 +24,10 @@ class Pixel {
 	floor() { return this.map( Math.floor ); }
 	round() { return this.map( Math.round ); }
 	ceil() { return this.map( Math.ceil ); }
+	eq( px2 ) { return this.every( (n,i)=>n === px2[i] ); }
+
+	isInteger() { return this.every(Number.isInteger); }
+	isFinite() { return this.every(Number.isFinite); }
 }
 const px = (x,y)=>new Pixel( x, y );
 
@@ -65,6 +69,11 @@ class Rect {
 			}
 		}
 	}
+	moveBy( px ) {
+		this.topLeft.add( px );
+		this.bottomRight.add( px );
+		return this;
+	}
 	shrinkBy( rect2 ) {
 		this.topLeft.add( rect2.topLeft );
 		this.bottomRight.sub( rect2.bottomRight );
@@ -76,7 +85,9 @@ class Rect {
 		return this;
 	}
 }
-const rect = (tl, br)=>new Rect( tl, br );
+const rect = (tl, br)=>new Rect( tl, br ); // TODO: stop using this one...
+const rectC = (tl, br)=>new Rect( tl, br );
+const rectS = (tl, wh)=>new Rect( tl, tl.clone().add(wh) );
 
 // extra stuff
 function wait( sec=0.03 ) {
@@ -104,9 +115,10 @@ function withTimeout( promise, s=3 ) {
 	return Promise.race( [promise, timeout] );
 }
 
-const tmpCanvas = document.createElement('canvas');
-const tmpCtx = tmpCanvas.getContext('2d');
 function imageDataToURL( imgData ) {
+	const tmpCanvas = document.createElement('canvas');
+	const tmpCtx = tmpCanvas.getContext('2d');
+
 	const canvas = tmpCanvas
 	canvas.width = imgData.width;
 	canvas.height = imgData.height;
@@ -131,7 +143,7 @@ function hash( buffer, fn=x=>x ) {
 
 module.exports = {
 	Pixel, px,
-	Rect, rect,
+	Rect, rect, rectC, rectS,
 	wait,
 	seq,
 	timeSec,

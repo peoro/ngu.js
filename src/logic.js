@@ -64,7 +64,7 @@ class InvLogic extends FeatureLogic {
 	getInvInfo() {
 		return ngu.inv.inventory.map( (slot)=>{
 			// TODO: move this logic into `ItemSlot` directly....
-			const imgData = nguJs.io.framebuffer.getView( slot.innerRect ).toImageData();
+			const imgData = new ImageView( nguJs.io.framebuffer, slot.innerRect ).toImageData();
 			const item = assets.items.detect( imgData.data );
 			const state = slot.stateDetector.detect();
 			return Object.assign( {item}, state );
@@ -128,6 +128,10 @@ class AdvLogic extends FeatureLogic {
 
 		// actual fighting
 		const fullHP = logic.adv.hpRatioIsAtLeast( 1 ); // if we're in a zone where enemies are easy to kill, let's not waste time charging up
+		if( !fullHP ) {
+			if( moveInfo.paralyze.ready ) { return moves.paralyze; }
+			if( moveInfo.block.ready ) { return moves.block; }
+		}
 		if( !fullHP && moveInfo.ultimate.ready && (moveInfo.charge.ready || moveInfo.charge.active) ) {
 			if( moveInfo.offBuff.ready ) { return moves.offBuff; }
 			if( moveInfo.ultBuff.ready ) { return moves.ultBuff; }

@@ -1,7 +1,9 @@
 
+const {px, rectS} = require('./util.js');
 const {loadNguJs} = require('./loader.js');
 const {implementTyping} = require('./fixes.js');
 const {imageDataToURL, hash} = require('./util.js');
+const {ImageView, ImageDataView} = require('./image.js');
 const assets = require('./assets.js');
 
 const noop = ()=>{};
@@ -105,13 +107,14 @@ class Gui {
 						await loopRunner.sync( true );
 
 						nguJsLib.ngu.itemList.items.forEach( (slot)=>{
-							const imgData = nguJs.io.framebuffer.getView( slot.innerRect ).toImageData();
-							createElement( invDiv, `img`, {
-								src: imageDataToURL(imgData),
-								title: assets.items.detect(imgData.data),
-								imgData,
+							const imgData = new ImageView( nguJs.io.framebuffer, slot.innerRect ).toImageData();
+							createElement( invDiv, `a`, {download:`x.png`, href:imageDataToURL(imgData)}, a=>{
+								createElement( a, `img`, {
+									src: imageDataToURL(imgData),
+									title: assets.items.detect(imgData.data),
+									imgData,
+								});
 							});
-							// invDiv.appendChild( img );
 						});
 					}
 				});
@@ -136,13 +139,66 @@ class Gui {
 
 					clearElement( invDiv );
 					nguJsLib.ngu.inv.inventory.forEach( (slot)=>{
-						const imgData = nguJs.io.framebuffer.getView( slot.innerRect ).toImageData();
+						const imgData = new ImageView( nguJs.io.framebuffer, slot.innerRect ).toImageData();
 						createElement( invDiv, `img`, {
 							src: imageDataToURL(imgData),
 							title: assets.items.detect(imgData.data),
 							imgData,
 						});
 					});
+				});
+
+				mkA( `Cube to PNG`, async ()=>{
+					nguJs.logic.inv.goTo();
+					await nguJs.loopRunner.sync( true );
+
+					const imgData = new ImageView( nguJs.io.framebuffer, nguJsLib.ngu.inv.cube.innerRect ).toImageData();
+					const png = assets.items.toPNG( imgData );
+				});
+
+				mkA( `Item list to PNG`, async ()=>{
+					const {logic, io, loopRunner} = nguJs;
+					const {ngu} = nguJsLib;
+					const {pages} = ngu.itemList;
+
+					const itemSize = nguJsLib.ngu.itemList.items[0].innerRect.size;
+					const pageCount = ngu.grids.inventory.itemList.items.count;
+					console.log( `${itemSize}x${pageCount}x${pages.length}` );
+
+					await loopRunner.stop();
+					logic.inv.goTo();
+					logic.click( ngu.inv.feats.itemList );
+					logic.click( ngu.itemList.clear );
+					logic.click( ngu.itemList.clearDialog.yes );
+
+					clearElement( invDiv );
+
+					for( let i = 0; i < pages.length; ++i ) {
+						logic.click( pages[i] );
+						await loopRunner.sync( true );
+
+						const targetSize = itemSize.clone().multiply(pageCount);
+						const targetImgData = new ImageData( targetSize.x, targetSize.y );
+						const targetView = new ImageDataView( targetImgData );
+
+						console.log( `Target: ${targetSize}` );
+
+						nguJsLib.ngu.itemList.items.forEach( (slot, i)=>{
+							const src = new ImageView( nguJs.io.framebuffer, slot.innerRect );
+
+							const targetPos = px( i%pageCount.x, Math.floor(i/pageCount.x) );
+							const targetRect = rectS( targetPos.multiply(itemSize), itemSize );
+							const target = new ImageView( targetView, targetRect );
+
+							console.log( `${slot.innerRect} => ${targetRect}` );
+
+							src.copyTo( target );
+						});
+
+						createElement( invDiv, `img`, {
+							src: imageDataToURL(targetImgData),
+						});
+					}
 				});
 
 				//const invDiv = createElement( contentDiv, `div` );

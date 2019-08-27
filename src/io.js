@@ -237,86 +237,32 @@ class Framebuffer {
 	constructor( io, canvas ) {
 		console.assert( canvas.width === W && canvas.height === H, `Framebuffer is currently meant to only work with ${W}x${H} canvases (canvas is ${canvas.width}x${canvas.height})` );
 
-		const buffer = new ArrayBuffer( 4*W*H );
-
 		this.io = io;
 		const gl = this.gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+
+		const buffer = new ArrayBuffer( 4*W*H );
 		this.dataView = new DataView( buffer );
 
+		// recapturing the framebuffer image every frame
 		const u8arr = new Uint8Array( buffer );
 		io.eachFrame( ()=>{
 			gl.readPixels( 0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, u8arr );
 		});
 	}
 
+	get size() { return px(W, H); }
+	get rect() { return Rect.fromTLSize( px(0,0), this.size() ); }
+
+	// overriding `getOffset`, since top and bottom in the framebuffer is inverted...
 	getOffset( p ) {
 		return p.x + (H-p.y-1)*W;
 	}
 	getPixel( p ) {
-		console.assert( p.hasOwnProperty('x') && p.hasOwnProperty('y'), `${p} not a px...` );
-		// console.assert( p.every(Number.isInteger), `${p} not integer` );
-		console.assert( p.every(Number.isFinite), `${p} not a number` );
+		console.assert( p.isInteger(), `${p} not an integer size...` );
 		return this.dataView.getUint32( this.getOffset(p)*4, false );
 	}
-
-	getView( rect ) {
-		return new ImageView( this, rect );
-	}
 }
 
-class ImageView {
-	constructor( fb, rect ) {
-		Object.assign( this, {fb, rect} );
-	}
-
-	pxToSrc( p ) {
-		return p.clone().add( this.rect.topLeft );
-	}
-	getOffset( p ) {
-		return this.fb.getOffset( this.pxToSrc(p) );
-	}
-	getPixel( p ) {
-		return this.fb.getPixel( this.pxToSrc(p) );
-	}
-
-	toImageData() {
-		const {fb, rect} = this;
-		const {width, height} = rect;
-		const imgData = new ImageData( width, height );
-		const {data} = imgData;
-
-		// copying the data from the framebuffer image into `data`
-		// NOTE(peoro): if this needs optimization, we can use...
-		// - TypedArray.prototype.subarray()
-		// - TypedArray.prototype.set()
-		// to copy the image view line by line
-		rect.forEach( (p)=>{
-			p.sub( rect.topLeft );
-
-			const srcOffset = this.getOffset( p );
-			const dstOffset = p.x + p.y*width;
-			for( let i = 0; i < 4; ++i ) {
-				data[ dstOffset*4+i ] = fb.dataView.getUint8( srcOffset*4+i );
-			}
-		});
-
-		return imgData
-	}
-	/*
-	toImage() {
-		const {fb, rect} = this;
-		const img = document.createElement(`img`);
-
-		const imgData = this.toImageData(){;
-		tmpCanvas.width = imgData.width;
-		tmpCanvas.height = imgData.height;
-		tmpCtx.putImageData( imgData, 0, 0 );
-		img.src = tmpCanvas.toDataURL();
-
-		return img;
-	}
-	*/
-}
 
 // adding a `detect :: Framebuffer -> value` method to `PixelDetector`
 PixelDetector.prototype.detect = function( fb=nguJs.io.framebuffer ) {

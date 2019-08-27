@@ -131,7 +131,7 @@ MoveButton.stateDetector = new PixelDetector( px(8,8), new Palette([
 
 class ItemSlot extends Widget {
 	constructor( rect ) {
-		console.assert( rect.width === 50 && rect.height === 50, `Weirdly sized item slot: ${rect}` );
+		console.assert( rect.size.eq( ItemSlot.size ), `Weirdly sized item slot: ${rect} (expected ${ItemSlot.size})` );
 		super( rect );
 	}
 
@@ -141,6 +141,8 @@ class ItemSlot extends Widget {
 	}
 	get stateDetector() { return this.constructor.stateDetector.relativeTo(this.rect.topLeft); }
 }
+ItemSlot.size = px(50, 50);
+ItemSlot.innerSize = px(46, 46);
 
 class InventorySlot extends ItemSlot {
 	constructor( rect ) { super(rect); }

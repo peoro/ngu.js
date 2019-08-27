@@ -137,7 +137,19 @@ class LoopRunner {
 				let lastEnemyTime = timeSec();
 
 				while( true ) {
-					await this.sync( true ); // making sure that the pixel we're using are fresh
+
+					try {
+						await this.sync( true ); // making sure that the pixel we're using are fresh
+					}
+					catch( err ) {
+						// if we need to stop, let's enable idle before stopping
+						const moveInfo = logic.adv.getMovesInfo();
+						if( ! moveInfo.idle.active ) {
+							logic.adv.attack( ngu.adv.moves.idle );
+						}
+
+						throw err;
+					}
 
 					const isEnemyAlive = logic.adv.isEnemyAlive();
 
@@ -181,11 +193,13 @@ class LoopRunner {
 						this.shouldStop = false; // and reset this var so that WE don't stop DDD:
 					});
 
+				/*
 				// enabling back idle, so we keep killing while sorting out the inventory :3
 				const moveInfo = logic.adv.getMovesInfo();
 				if( ! moveInfo.idle.active ) {
 					logic.adv.attack( ngu.adv.moves.idle );
 				}
+				*/
 			}),
 
 		};

@@ -16,7 +16,7 @@ function loadNguJs( nguJsBasePath=(localStorage.getItem('nguJsBasePath')||'https
 			localStorage.setItem( 'nguJsBasePath', nguJsBasePath );
 			window.nguJsLib.main();
 		};
-		script.src = nguJsBasePath+`ngu.js?t=${Date.now()}`;
+		script.src = nguJsBasePath+`/ngu.js?t=${Date.now()}`;
 		document.head.appendChild( script );
 	}
 }
