@@ -98,6 +98,13 @@ class AdvLogic extends FeatureLogic {
 		return ngu.adv.self.hpBar.getStateDetectorForRatio(ratio).detect();
 	}
 
+	idle( on=true ) {
+		const moveInfo = this.getMovesInfo();
+		if( moveInfo.idle.active !== on ) {
+			this.attack( ngu.adv.moves.idle );
+		}
+	}
+
 	chooseMove() {
 		const {logic} = this;
 		const {moves} = ngu.adv;

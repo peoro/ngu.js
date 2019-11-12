@@ -93,8 +93,18 @@ class LoopRunner {
 				let bossFound = false;
 				let lastEnemyTime = timeSec();
 
+				// getting ready to fight manually
+				logic.adv.idle( false );
+
 				while( true ) {
-					await this.sync( true ); // making sure that the pixel we're using are fresh
+					try {
+						await this.sync( true ); // making sure that the pixel we're using are fresh
+					}
+					catch( err ) {
+						// if we need to stop, let's enable idle before stopping
+						logic.adv.idle();
+						throw err;
+					}
 
 					const isBoss = logic.adv.isBoss();
 					const isEnemyAlive = logic.adv.isEnemyAlive();
@@ -105,13 +115,13 @@ class LoopRunner {
 
 					if( bossFound && ! isEnemyAlive ) {
 						console.log( `done killing the boss!` );
-						return;
+						break;
 					}
 
 					if( now - lastEnemyTime > 10 ) {
 						// hmm... I'm probably dead and back to safe zone :(
 						console.log( `Am I... Dead?! D:` );
-						return;
+						break;
 					}
 
 					if( isEnemyAlive && ! isBoss ) {
@@ -128,6 +138,8 @@ class LoopRunner {
 						logic.adv.attack( move );
 					}
 				}
+
+				logic.adv.idle();
 			}),
 
 			killAll: this.mkRule( `kill all`, async function() {
@@ -143,11 +155,7 @@ class LoopRunner {
 					}
 					catch( err ) {
 						// if we need to stop, let's enable idle before stopping
-						const moveInfo = logic.adv.getMovesInfo();
-						if( ! moveInfo.idle.active ) {
-							logic.adv.attack( ngu.adv.moves.idle );
-						}
-
+						logic.adv.idle();
 						throw err;
 					}
 
@@ -192,14 +200,6 @@ class LoopRunner {
 						await killAllP.catch( ()=>{} ); // we wait for `killAll` to finish, ignoring its `stop` error
 						this.shouldStop = false; // and reset this var so that WE don't stop DDD:
 					});
-
-				/*
-				// enabling back idle, so we keep killing while sorting out the inventory :3
-				const moveInfo = logic.adv.getMovesInfo();
-				if( ! moveInfo.idle.active ) {
-					logic.adv.attack( ngu.adv.moves.idle );
-				}
-				*/
 			}),
 
 		};
