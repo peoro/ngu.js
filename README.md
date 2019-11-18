@@ -39,6 +39,38 @@ What makes this bot cross-platform is that it runs within the browser and uses t
 NGU in fact offers no API: bots need to emulate input events to perform actions, and to parse the pixels of the game window to gather information. NGU.js reads pixels from the game Canvas and triggers DOM Events to talk with the game.
 Having to use such a low level interface makes the development of a bot very interesting and challenging. It also makes it necessary to deal with some tedious details, which is what periodically bores me away.
 
+### Running your own NGU.js
+
+Once you change something in NGU.js you will want to run your modified version. That's never been easier.
+
+The following command will automatically rebuilt any changes on the fly, and start a development server (on port 8042 by default):
+```bash
+npm run start:dev
+```
+
+You will need to expose your NGU.js through HTTPS with a valid certificate, or the browser will refuse to load it, due to security policies.
+The simplest way to achieve that is to put your NGU.js development server behind a HTTPS tunnel. You can use serveo.net, just by running:
+
+```bash
+npm run serveo
+```
+
+Then you'll find your NGU.js at `https://${USER}-ngujs.serveo.net/`.
+Serveo is often down though. If you wish a more stable HTTPS tunnel contact me, and I'll be able to set one up at `https://ngujs.peori.space/${USER}`.
+Test whether your development version is working by loading `${YOUR_HTTPS_NGUJS_URL}/ngu.js`.
+
+Once your development version is up, you can load it into the browser by inputting its URL at the bottom of the NGU.js popup.
+
+If you wish to build NGU.js without starting a development server, run:
+
+```bash
+npm run build # `npm run build:dev` for the development version
+```
+
+You'll find the built version in the `dist/` directory. You can offer that through HTTPS, or copy its content directly into your browser's console.
+
+If you develop something useful, don't forget to send a Pull Request!
+
 ### Architecture
 
 The plan is to split up NGU.js into three logically separated modules:
@@ -77,5 +109,7 @@ However, before continuing down this path, I'd like to have all the item images 
 Another useful task would be to completely rewrite the whole high-level logic abstraction (currently called "loop").
 
 The GUI could also receive tons of tweaks. I'm dreaming about being able to control several kind of functionalities (high-level functions, mid-level functions, tweaking game preferences, NGU.js settings, debugging functions, unit tests etc), and having a nice GUI grouping everything in different tabs.
+
+### Help Wanted
 
 Any help is welcome. If you wish to participate, drop a message on discord (to `peoro` or in the `scripting` chat), or open an issue on [peoro/ngu.js](https://github.com/peoro/ngu.js).
