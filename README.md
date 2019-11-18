@@ -35,8 +35,8 @@ This should create a new button reading `.js` in the bottom left of the screen: 
 
 I started working on this project because no cross-platform bot or script was available for NGU and, most importantly, because I find scripting a game more interesting than playing it.
 
-What makes this bot cross-platform is that it runs within the browser and uses the browser's API to interface with the game.
-NGU in fact offers no API: bots need to emulate input events to perform actions, and to parse the pixels of the game window to gather information. NGU.js reads pixels from the game Canvas and triggers DOM Events to talk with the game.
+What makes this bot cross-platform is that it runs within the browser and uses the browser's API to interface with the game.  
+NGU in fact offers no API: bots need to emulate input events to perform actions, and to parse the pixels of the game window to gather information. NGU.js reads pixels from the game Canvas and triggers DOM Events to talk with the game.  
 Having to use such a low level interface makes the development of a bot very interesting and challenging. It also makes it necessary to deal with some tedious details, which is what periodically bores me away.
 
 ### Running your own NGU.js
@@ -48,15 +48,15 @@ The following command will automatically rebuilt any changes on the fly, and sta
 npm run start:dev
 ```
 
-You will need to expose your NGU.js through HTTPS with a valid certificate, or the browser will refuse to load it, due to security policies.
+You will need to expose your NGU.js through HTTPS with a valid certificate, or the browser will refuse to load it, due to security policies.  
 The simplest way to achieve that is to put your NGU.js development server behind a HTTPS tunnel. You can use serveo.net, just by running:
 
 ```bash
 npm run serveo
 ```
 
-Then you'll find your NGU.js at `https://${USER}-ngujs.serveo.net/`.
-Serveo is often down though. If you wish a more stable HTTPS tunnel contact me, and I'll be able to set one up at `https://ngujs.peori.space/${USER}`.
+Then you'll find your NGU.js at `https://${USER}-ngujs.serveo.net/`.  
+Serveo is often down though. If you wish a more stable HTTPS tunnel contact me, and I'll be able to set one up at `https://ngujs.peori.space/${USER}`.  
 Test whether your development version is working by loading `${YOUR_HTTPS_NGUJS_URL}/ngu.js`.
 
 Once your development version is up, you can load it into the browser by inputting its URL at the bottom of the NGU.js popup.
@@ -102,8 +102,8 @@ The Bot framework currently looks like this...
 
 ### TODO
 
-My next priority is implementing image recognition. I'd love to be able to recognize which items are in the inventory. With that capability it could be a lot easier to implement efficient *loops* and very interesting features, like embedding the [gear optimizer](https://gmiclotte.github.io/gear-optimizer/) directly into the game.
-Image recognition is not easy. Something that complicates it a lot, is that the same image looks slightly different in different places (e.g. items in the item list are barely brighter than those in the inventory). I designed a noise-tolerant and lightweight hashing function (see [`src/imageid.js`](https://github.com/peoro/ngu.js/blob/master/src/imageid.js)), and would like to use it to statically pre-computed a hash for every image. This would make image support very lightweight (no need to embed image files within NGU.js) and efficient.
+My next priority is implementing image recognition. I'd love to be able to recognize which items are in the inventory. With that capability it could be a lot easier to implement efficient *loops* and very interesting features, like embedding the [gear optimizer](https://gmiclotte.github.io/gear-optimizer/) directly into the game.  
+Image recognition is not easy. Something that complicates it a lot, is that the same image looks slightly different in different places (e.g. items in the item list are barely brighter than those in the inventory). I designed a noise-tolerant and lightweight hashing function (see [`src/imageid.js`](https://github.com/peoro/ngu.js/blob/master/src/imageid.js)), and would like to use it to statically pre-computed a hash for every image. This would make image support very lightweight (no need to embed image files within NGU.js) and efficient.  
 However, before continuing down this path, I'd like to have all the item images (and as much other data as possible) committed into [NGU.assets](https://github.com/peoro/ngu.assets).
 
 Another useful task would be to completely rewrite the whole high-level logic abstraction (currently called "loop").
