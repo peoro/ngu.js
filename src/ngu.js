@@ -46,7 +46,7 @@ const grids = {
 		}
 	},
 	equipment: {
-		equipment: new GridLayout( rect(px(352,39), px(652,239)), px(6, 4), InventorySlot ),
+		equipment: new GridLayout( rect(px(302,39), px(652,239)), px(7, 4), InventorySlot ),
 		features: new GridLayout( rect(px(657,18), px(729,243)), px(1, 5), RegularButton ),
 	},
 };
@@ -82,11 +82,11 @@ const ngu = {
 		inventory: grids.inventory.inventory.createAll(),
 
 		equip: grids.equipment.equipment.createObj({
-			acc: [px(2,0), px(2,1), px(2,2), px(2,3), px(1,3)],
-			head:px(3,0), chest:px(3,1), weapon:px(4,1), legs:px(3,2), shoes:px(3,3),
+			acc: [px(3,0), px(3,1), px(3,2), px(3,3), px(2,3), px(2,2), px(2,1), px(2,0), px(1,0), px(1,1), px(1,2), px(1,3), px(0,3), px(0,2)],
+			head: px(4,0), chest:px(4,1), weapon:px(5,1), weapon1:px(5,1), weapon2:px(5,2), legs:px(4,2), shoes:px(4,3),
 		}),
-		cube: grids.equipment.equipment.createWidget( px(5,1) ),
-		trash: grids.equipment.equipment.createWidget( px(5,3) ),
+		cube: grids.equipment.equipment.createWidget( px(6,1) ),
+		trash: grids.equipment.equipment.createWidget( px(6,3) ),
 		feats: grids.equipment.features.createObj({
 			wtf:0, itemList:1, daycare:2, fragments:3, statsBreakdown:4,
 		}),
