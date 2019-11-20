@@ -10,8 +10,14 @@ function implementTyping( input ) {
 		//const char = e.char;
 		//if( ! char ) { return; }
 
-		const char = e.key; // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key
-		if( char.length !== 1 || e.ctrlKey ) { return; }
+		if( e.ctrlKey ) { return; }
+
+		let char = e.key; // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key
+		if( input.nodeName === 'TEXTAREA' && char === 'Enter' ) {
+			char = '\n';
+		}
+
+		if( char.length !== 1 ) { return; }
 
 		const {value} = input;
 
