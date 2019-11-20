@@ -52,7 +52,7 @@ class Gui {
 			});
 
 			// let's add a `dev` logo, if necessary
-			if( DEV ) {
+			if( process.env.DEV ) {
 				createElement( controlDiv, `span`, {className:`dev`, textContent:`dev`} );
 			}
 
