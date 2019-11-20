@@ -69,6 +69,21 @@ class InvLogic extends FeatureLogic {
 		mouse.click( 2 );
 	}
 
+	applyLoadout( loadout, resetEnergy=false, resetMagic=false, resetR3=false ) {
+		if( resetEnergy ) {
+			nguJs.io.keyboard.press( Keyboard.keys.r );
+		}
+		if( resetMagic ) {
+			nguJs.io.keyboard.press( Keyboard.keys.t );
+		}
+		if( resetR3 ) {
+			nguJs.io.keyboard.press( Keyboard.keys.f );
+		}
+		const {mouse} = nguJs.io;
+		mouse.move( loadout.center );
+		mouse.click();
+	}
+
 	getInvInfo() {
 		return ngu.inv.inventory.map( (slot)=>{
 			// TODO: move this logic into `ItemSlot` directly....

@@ -48,6 +48,7 @@ const grids = {
 	equipment: {
 		equipment: new GridLayout( rect(px(302,39), px(652,239)), px(7, 4), InventorySlot ),
 		features: new GridLayout( rect(px(657,18), px(729,243)), px(1, 5), RegularButton ),
+		loadouts: new GridLayout( rect(px(316,243), px(616,273)), px(10, 1), RegularButton ),
 	},
 };
 
@@ -90,6 +91,7 @@ const ngu = {
 		feats: grids.equipment.features.createObj({
 			wtf:0, itemList:1, daycare:2, fragments:3, statsBreakdown:4,
 		}),
+		loadout: grids.equipment.loadouts.createAll(),
 	},
 	itemList: {
 		clear: new RegularButton( rect(px(320,11), px(390,46)) ),
