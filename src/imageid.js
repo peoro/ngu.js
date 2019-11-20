@@ -56,7 +56,7 @@ function makeDecisionTree( indexCount, set, items=set.map((item,i)=>i) ) {
 
 function search( decisionTree, item ) {
 	if( Array.isArray(decisionTree) ) {
-		if( DEV ) { console.assert( decisionTree.length === 3 ); }
+		if( process.env.DEV ) { console.assert( decisionTree.length === 3 ); }
 
 		const [index, left, right] = decisionTree;
 		return item[index]<128 ? search(left, item) : search(right, item);

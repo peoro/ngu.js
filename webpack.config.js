@@ -42,8 +42,11 @@ const config = {
 
 module.exports = (env, argv)=>{
 	config.plugins.push( new webpack.DefinePlugin({
-		PROD: JSON.stringify( argv.mode === 'production' ),
-		DEV: JSON.stringify( argv.mode === 'development' ),
+		'process.env': {
+			PROD: JSON.stringify( argv.mode === 'production' ),
+			DEV: JSON.stringify( argv.mode === 'development' ),
+			WEBPACK: JSON.stringify(true),
+		}
 	}) );
 
 	if( argv.mode === 'development' ) {}

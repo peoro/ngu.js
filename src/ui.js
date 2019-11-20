@@ -2,7 +2,7 @@
 // UI for virtual input
 const ui = module.exports;
 
-const css = require('./index.scss'); // CSS (both for UI and GUI
+const css = process.env.WEBPACK ? require('./index.scss') : ''; // CSS (both for UI and GUI
 
 class UI {
 	constructor() {
