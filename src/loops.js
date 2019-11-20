@@ -1,7 +1,7 @@
 
 // high level strategies
 
-const {timeSec, withTimeout} = require('./util.js');
+const {timeSec, withTimeout, wait} = require('./util.js');
 const ngu = require('./ngu.js');
 
 class LoopRunner {
@@ -84,6 +84,25 @@ class LoopRunner {
 			capAllWandoos: this.mkRule( `cap all wandoos`, async function() {
 				logic.wand.goTo();
 				logic.wand.capAll();
+			}),
+
+			applyBoostToSlots: this.mkRule( `apply boost to slots`, async function(slots, interval) {
+				logic.inv.goTo();
+				for (const slot of slots) {
+					if (slot === "cube") {
+						logic.inv.applyAllBoostsToCube();
+					} else if (typeof slot === "number") {
+						logic.inv.boostSlot(ngu.inv.inventory[slot]);
+					} else if (/^acc(\d+)$/.test(slot)) {
+						const match = slot.match(/^acc(\d+)$/);
+						const idx = match[1];
+						logic.inv.boostSlot(ngu.inv.equip.acc[idx]);
+					} else {
+						logic.inv.boostSlot(ngu.inv.equip[slot]);
+					}
+				}
+				await this.sync();
+				await wait (interval/1000);
 			}),
 
 			fixInv: this.mkRule( `fix inventory`, async function() {

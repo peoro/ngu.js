@@ -5,6 +5,7 @@ const {implementTyping} = require('./fixes.js');
 const {imageDataToURL, hash} = require('./util.js');
 const {ImageView, ImageDataView} = require('./image.js');
 const assets = require('./assets.js');
+const {IO} = require('./io.js');
 
 const noop = ()=>{};
 function createElement( parent, tag, opts={}, fn=noop ) {
@@ -26,6 +27,11 @@ function clearElement( el ) {
 	while( el.firstChild ) {
 		el.removeChild( el.firstChild );
 	}
+}
+
+function loadConfig( config ) {
+	IO.delay = config.inputdelay;
+	Gui.config = config;
 }
 
 class Gui {
@@ -57,6 +63,28 @@ class Gui {
 			}
 
 			createElement( controlDiv, `div`, {className:`content`}, (contentDiv)=>{
+				const textArea = createElement( contentDiv, `textArea`, {cols:80, rows:6, id:"config"}, implementTyping);
+				{
+					textArea.value =
+`{
+  "inputdelay": 0,
+  "boost": ["acc4",0,1,"head","weapon","cube"],
+  "boostInterval": 5000
+}`;
+					const config = JSON.parse(textArea.value);
+					loadConfig( config );
+				}
+				createElement( contentDiv, `br`);
+
+				const refreshConfig = createElement(contentDiv, `a`, {textContent:`Refresh config`, href:`javascript:void(0)`});
+				{
+					refreshConfig.onclick = function() {
+						const config = JSON.parse(document.getElementById("config").value);
+						loadConfig( config );
+					}
+				}
+				createElement( contentDiv, `br`);
+				createElement( contentDiv, `br`);
 
 				// let's display what's the loop currently active (and a button to disable it)
 				createElement( contentDiv, `p`, (p)=>{
@@ -84,7 +112,9 @@ class Gui {
 						a.addEventListener( `click`, fn );
 					});
 				};
+				const cfg = Gui.config;
 				mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
+				mkA( `Boost slots`, ()=>{ nguJs.loops.applyBoostToSlots(cfg.boost, cfg.boostInterval); } );
 				mkA( `Snipe boss`, ()=>{ nguJs.loops.snipeBoss(); } );
 				mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.snipeLoop(); } );
 				mkA( `Kill all`, ()=>{ nguJs.loops.killAll(); } );
