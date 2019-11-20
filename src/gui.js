@@ -201,6 +201,11 @@ class Gui {
 					}
 				});
 
+				createElement( contentDiv, `br`);
+				mkA( `Cap all magic`, ()=>{
+					nguJs.loops.capAllMagic({times: 1});
+				});
+
 				//const invDiv = createElement( contentDiv, `div` );
 				// TODO: debugging only: let's reuse the same invDiv among reloads...
 				const invDiv = window.invDiv =

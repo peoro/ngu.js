@@ -76,6 +76,11 @@ class LoopRunner {
 		const {logic, io} = nguJs;
 
 		return {
+			capAllMagic: this.mkRule( `cap all magic`, async function() {
+				logic.bm.goTo();
+				logic.bm.capAll();
+			}),
+
 			fixInv: this.mkRule( `fix inventory`, async function() {
 				logic.inv.goTo();
 				logic.inv.applyAllBoostsToCube();
