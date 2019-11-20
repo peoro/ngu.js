@@ -101,6 +101,10 @@ const ngu = {
 		pages: grids.inventory.itemList.pages.createAll(),
 		items: grids.inventory.itemList.items.createAll(),
 	},
+	wand: {
+		capEnergy: new RegularButton( rect(px(606, 235), px(646, 265)) ),
+		capMagic: new RegularButton( rect(px(606, 333), px(646, 363)) ),
+	},
 };
 
 
