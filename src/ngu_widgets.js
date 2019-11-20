@@ -20,6 +20,16 @@ class Widget {
 	get center() { return this.rect.center; }
 }
 
+class PlusMinusCap {
+	constructor( rect ) {
+		this.plus = Rect.fromTLSize( rect.topLeft, PlusMinusCap.plusSize );
+		this.minus = Rect.fromTLSize( this.plus.topRight, PlusMinusCap.minusSize );
+		this.cap = Rect.fromTLSize( this.minus.topRight, PlusMinusCap.capSize );
+	}
+}
+PlusMinusCap.plusSize = px(35, 30);
+PlusMinusCap.minusSize = px(35, 30);
+PlusMinusCap.capSize = px(40, 30);
 
 class GridLayout extends Widget{
 	constructor( rect, count, ButtonType, hGap=0, vGap=0 ) {
@@ -176,5 +186,6 @@ Object.assign( module.exports, {
 	GridLayout,
 	Bar,
 	RegularButton, MoveButton,
-	ItemSlot, InventorySlot, ItemListSlot
+	ItemSlot, InventorySlot, ItemListSlot,
+	PlusMinusCap
 });
