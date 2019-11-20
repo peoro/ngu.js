@@ -22,10 +22,12 @@ class Widget {
 
 
 class GridLayout extends Widget{
-	constructor( rect, count, ButtonType ) {
+	constructor( rect, count, ButtonType, hGap=0, vGap=0 ) {
 		super( rect );
 		Object.assign( this, {count, ButtonType} );
 
+		this.hGap = hGap;
+		this.vGap = vGap;
 		this.items = [];
 		this.itemDict = {};
 	}
@@ -33,11 +35,14 @@ class GridLayout extends Widget{
 	posToIdx( pos ) { return pos.x + pos.y*this.count.x; }
 	idxToPos( n ) { return px( n%this.count.x, Math.floor(n/this.count.x) ); }
 	computeItemRect( pos ) {
-		const {count, rect} = this;
+		const {count, rect, hGap, vGap} = this;
 		console.assert( pos.x >= 0 && pos.x < count.x && pos.y >= 0 && pos.y < count.y, `Invalid item pos ${pos.x}x${pos.y}` );
 
-		const size = px( rect.width/count.x, rect.height/count.y );
-		const topLeft = px( rect.left + size.x*pos.x, rect.top + size.y*pos.y ).ceil();
+		const actualRectWidth = rect.width - (hGap * (count.x - 1));
+		const actualRectHeight = rect.height - (vGap * (count.y - 1));
+		const size = px( actualRectWidth/count.x, actualRectHeight/count.y );
+
+		const topLeft = px( rect.left + (size.x + hGap)*pos.x, rect.top + (size.y + vGap)*pos.y ).ceil();
 		return new Rect( topLeft, topLeft.clone().add(size.floor()) );
 	}
 
