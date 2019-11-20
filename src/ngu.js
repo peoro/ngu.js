@@ -52,6 +52,9 @@ const grids = {
 	},
 	bm: {
 		spells: new GridLayout( rect(px(479,213), px(589,485)), px(1, 8), PlusMinusCap, 0, 8 ),
+	},
+	ngu: {
+		rows: new GridLayout( rect(px(500,225), px(610,535)), px(1, 9), PlusMinusCap, 0, 5 ),
 	}
 };
 
@@ -110,6 +113,10 @@ const ngu = {
 	},
 	bm: {
 		spells: grids.bm.spells.createAll(),
+	},
+	ngu: {
+		rows: grids.ngu.rows.createAll(),
+		switchPage: new RegularButton( rect(px(311, 94), px(441,124)) ),
 	}
 };
 

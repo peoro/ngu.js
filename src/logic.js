@@ -13,6 +13,7 @@ class Logic {
 		this.adv = new AdvLogic( this );
 		this.wand = new WandLogic( this );
 		this.bm = new BmLogic( this );
+		this.ngu = new NguLogic( this );
 	}
 
 	getRidOfMouse() {
@@ -80,6 +81,29 @@ class BmLogic extends FeatureLogic {
 			mouse.move( spell.cap.center );
 			mouse.click();
 		}
+	}
+}
+
+class NguLogic extends FeatureLogic {
+	constructor( logic ) {
+		super( ngu.features.buttons.ngu, logic );
+	}
+	cap( idx ) {
+		const {mouse} = nguJs.io;
+		mouse.move( ngu.ngu.rows[idx].cap.center );
+		mouse.click();
+	}
+	capAll() {
+		const {mouse} = nguJs.io;
+		for ( const row of ngu.ngu.rows ) {
+			mouse.move( row.cap.center );
+			mouse.click();
+		}
+	}
+	switchPage() {
+		const {mouse} = nguJs.io;
+		mouse.move( ngu.ngu.switchPage.center );
+		mouse.click();
 	}
 }
 
