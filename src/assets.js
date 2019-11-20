@@ -1,5 +1,5 @@
 
 module.exports = {
-	version: `0.427-2`,
+	version: `1.002`,
 	items: require('./assets/items.js'),
 };

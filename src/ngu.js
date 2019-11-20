@@ -71,10 +71,10 @@ const ngu = {
 			paralyze:{i:12, key:`z`}, regen:{i:13, key:`x`}, locked:{i:14, key:`c`}, locked:{i:15, key:`v`}, locked:{i:16, key:`b`}, move69:{i:17, key:`n`},
 		}),
 		self: {
-			hpBar: new Bar( rect(px(317,399), px(547,424)) ),
+			hpBar: new Bar( rect(px(317,403), px(517,428)) ),
 		},
 		enemy: {
-			hpBar: new Bar( rect(px(705,399), px(935,424)) ),
+			hpBar: new Bar( rect(px(734,403), px(934,428)) ),
 		},
 		bossDetector: new PixelDetector( px(715,278), new Palette([[0xf7ef29ff, true]], false) ),
 	},
