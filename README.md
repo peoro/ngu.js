@@ -39,16 +39,38 @@ What makes this bot cross-platform is that it runs within the browser and uses t
 NGU in fact offers no API: bots need to emulate input events to perform actions, and to parse the pixels of the game window to gather information. NGU.js reads pixels from the game Canvas and triggers DOM Events to talk with the game.  
 Having to use such a low level interface makes the development of a bot very interesting and challenging. It also makes it necessary to deal with some tedious details, which is what periodically bores me away.
 
-### Running your own NGU.js
+### Working with the sources
 
-Once you change something in NGU.js you will want to run your modified version. That's never been easier.
+NGU.js uses Node.js and NPM to install its dependencies, run tests and build a Webpack bundle that can be fed to a browser.
 
-The following command will automatically rebuilt any changes on the fly, and start a development server (on port 8042 by default):
+Once you fetch the source code, you should install and build the dependencies using:
+```bash
+npm install
+```
+
+You can then run the tests with:
+```bash
+npm test
+```
+
+And build NGU.js with:
+```bash
+npm run build # `npm run build:dev` for the development version
+```
+
+The built bundle will be available in `dist/ngu.js`. That file can be offered via HTTPS or even copied directly into the browser's console.
+
+However, while actively developing NGU.js and playing with its sources, having to keep rebuilding the code and loading it in your browser can be a tedious task.  
+It's possible to continuously rebuild the bundle whenever the code changes, and to reload it in the browser clicking on a button in NGU.js' UI: keep reading.
+
+#### Running your own NGU.js
+
+The following command will automatically rebuilt any changes on the fly, and start a development HTTP server you can use for testing:
 ```bash
 npm run start:dev
 ```
 
-You will need to expose your NGU.js through HTTPS with a valid certificate, or the browser will refuse to load it, due to security policies.  
+You will need to expose your NGU.js through HTTPS with a valid certificate, or most browsers will refuse to load it, due to security policies.  
 The simplest way to achieve that is to put your NGU.js development server behind a HTTPS tunnel. You can use serveo.net, just by running:
 
 ```bash
@@ -56,18 +78,10 @@ npm run serveo
 ```
 
 Then you'll find your NGU.js at `https://${USER}-ngujs.serveo.net/`.  
-Serveo is often down though. If you wish a more stable HTTPS tunnel contact me, and I'll be able to set one up at `https://ngujs.peori.space/${USER}`.  
+Serveo is often down though. If you wish a more stable HTTPS tunnel contact me, and I'll be able to set one up at `https://ngujs.peori.space/${USER}/`.  
 Test whether your development version is working by loading `${YOUR_HTTPS_NGUJS_URL}/ngu.js`.
 
-Once your development version is up, you can load it into the browser by inputting its URL at the bottom of the NGU.js popup.
-
-If you wish to build NGU.js without starting a development server, run:
-
-```bash
-npm run build # `npm run build:dev` for the development version
-```
-
-You'll find the built version in the `dist/` directory. You can offer that through HTTPS, or copy its content directly into your browser's console.
+Once your development server is up, you can load it into the browser by inputting its URL at the bottom of the NGU.js popup.
 
 If you develop something useful, don't forget to send a Pull Request!
 
