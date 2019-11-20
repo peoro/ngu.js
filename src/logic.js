@@ -71,13 +71,13 @@ class BmLogic extends FeatureLogic {
 	}
 	cap( idx ) {
 		const {mouse} = nguJs.io;
-		mouse.move( ngu.bm.cap[idx].center );
+		mouse.move( ngu.bm.spells[idx].cap.center );
 		mouse.click();
 	}
 	capAll() {
 		const {mouse} = nguJs.io;
-		for ( const btn of ngu.bm.cap) {
-			mouse.move( btn.center );
+		for ( const spell of ngu.bm.spells) {
+			mouse.move( spell.cap.center );
 			mouse.click();
 		}
 	}

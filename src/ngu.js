@@ -10,7 +10,7 @@
 
 const {px, rect} = require('./util.js');
 const {PixelDetector, Palette} = require('./color.js');
-const {GridLayout, Bar, RegularButton, MoveButton, ItemSlot, InventorySlot, ItemListSlot} = require('./ngu_widgets.js')
+const {GridLayout, Bar, RegularButton, MoveButton, ItemSlot, InventorySlot, ItemListSlot, PlusMinusCap} = require('./ngu_widgets.js')
 
 
 // canvas size
@@ -51,7 +51,7 @@ const grids = {
 		loadouts: new GridLayout( rect(px(316,243), px(616,273)), px(10, 1), RegularButton ),
 	},
 	bm: {
-		cap: new GridLayout( rect(px(549,213), px(589,485)), px(1, 8), RegularButton, 0, 8 ),
+		spells: new GridLayout( rect(px(479,213), px(589,485)), px(1, 8), PlusMinusCap, 0, 8 ),
 	}
 };
 
@@ -109,7 +109,7 @@ const ngu = {
 		capMagic: new RegularButton( rect(px(606, 333), px(646, 363)) ),
 	},
 	bm: {
-		cap: grids.bm.cap.createAll(),
+		spells: grids.bm.spells.createAll(),
 	}
 };
 
