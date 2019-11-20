@@ -12,6 +12,7 @@ class Logic {
 		this.inv = new InvLogic( this );
 		this.adv = new AdvLogic( this );
 		this.wand = new WandLogic( this );
+		this.bm = new BmLogic( this );
 	}
 
 	getRidOfMouse() {
@@ -61,6 +62,24 @@ class WandLogic extends FeatureLogic {
 	capAll() {
 		this.capEnergy();
 		this.capMagic();
+	}
+}
+
+class BmLogic extends FeatureLogic {
+	constructor( logic ) {
+		super( ngu.features.buttons.bm, logic );
+	}
+	cap( idx ) {
+		const {mouse} = nguJs.io;
+		mouse.move( ngu.bm.cap[idx].center );
+		mouse.click();
+	}
+	capAll() {
+		const {mouse} = nguJs.io;
+		for ( const btn of ngu.bm.cap) {
+			mouse.move( btn.center );
+			mouse.click();
+		}
 	}
 }
 

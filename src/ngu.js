@@ -50,6 +50,9 @@ const grids = {
 		features: new GridLayout( rect(px(657,18), px(729,243)), px(1, 5), RegularButton ),
 		loadouts: new GridLayout( rect(px(316,243), px(616,273)), px(10, 1), RegularButton ),
 	},
+	bm: {
+		cap: new GridLayout( rect(px(549,213), px(589,485)), px(1, 8), RegularButton, 0, 8 ),
+	}
 };
 
 // coordinates (relative to a canvas of size `size`)
@@ -105,6 +108,9 @@ const ngu = {
 		capEnergy: new RegularButton( rect(px(606, 235), px(646, 265)) ),
 		capMagic: new RegularButton( rect(px(606, 333), px(646, 363)) ),
 	},
+	bm: {
+		cap: grids.bm.cap.createAll(),
+	}
 };
 
 
