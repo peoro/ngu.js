@@ -14,6 +14,7 @@ class Logic {
 		this.wand = new WandLogic( this );
 		this.bm = new BmLogic( this );
 		this.ngu = new NguLogic( this );
+		this.gd = new GdLogic( this );
 	}
 
 	getRidOfMouse() {
@@ -103,6 +104,41 @@ class NguLogic extends FeatureLogic {
 	switchPage() {
 		const {mouse} = nguJs.io;
 		mouse.move( ngu.ngu.switchPage.center );
+		mouse.click();
+	}
+}
+
+class GdLogic extends FeatureLogic {
+	constructor( logic ) {
+		super( ngu.features.buttons.gd, logic );
+	}
+	switchPage( idx ) {
+		const {mouse} = nguJs.io;
+		mouse.move( ngu.gd.pages[idx].center );
+		mouse.click();
+	}
+	toggleDigger( digger ) {
+		const {mouse} = nguJs.io;
+		const gd = ngu.gd.digger[digger];
+		this.switchPage( gd.page );
+		mouse.move( ngu.gd[gd.corner].toggle.center );
+		mouse.click();
+	}
+	capDigger( digger ) {
+		const {mouse} = nguJs.io;
+		const gd = ngu.gd.digger[digger];
+		this.switchPage( gd.page );
+		mouse.move( ngu.gd[gd.corner].control.cap.center );
+		mouse.click();
+	}
+	clearDiggers( ) {
+		const {mouse} = nguJs.io;
+		mouse.move( ngu.gd.clear.center );
+		mouse.click();
+	}
+	capSavedDiggers( ) {
+		const {mouse} = nguJs.io;
+		mouse.move( ngu.gd.capSaved.center );
 		mouse.click();
 	}
 }

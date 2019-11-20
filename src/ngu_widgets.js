@@ -31,6 +31,18 @@ PlusMinusCap.plusSize = px(35, 30);
 PlusMinusCap.minusSize = px(35, 30);
 PlusMinusCap.capSize = px(40, 30);
 
+// TODO(jw): i'm not familiar enough with JS to figure out how to refactor this
+class PlusMinusCapSmall {
+	constructor( rect ) {
+		this.plus = Rect.fromTLSize( rect.topLeft, PlusMinusCapSmall.plusSize );
+		this.minus = Rect.fromTLSize( this.plus.topRight, PlusMinusCapSmall.minusSize );
+		this.cap = Rect.fromTLSize( this.minus.topRight, PlusMinusCapSmall.capSize );
+	}
+}
+PlusMinusCapSmall.plusSize = px(30, 23);
+PlusMinusCapSmall.minusSize = px(30, 23);
+PlusMinusCapSmall.capSize = px(35, 23);
+
 class GridLayout extends Widget{
 	constructor( rect, count, ButtonType, hGap=0, vGap=0 ) {
 		super( rect );
@@ -187,5 +199,5 @@ Object.assign( module.exports, {
 	Bar,
 	RegularButton, MoveButton,
 	ItemSlot, InventorySlot, ItemListSlot,
-	PlusMinusCap
+	PlusMinusCap, PlusMinusCapSmall
 });

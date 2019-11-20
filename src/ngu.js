@@ -8,9 +8,9 @@
 // - We should use OCR to load NGU build version. If NGU's version is different from what we expected, NGU.js should display a warning and suggest to run the test described above.
 // - We should provide a piece of code to gather all the images that we need for feature recognition. E.g. all the item pictures from the item list, all the titles for the adventure zones etc. This can be used to build a hashmap to easily recognize image: that will be included in the source code. A cool optimization, might be to compare all the collected images in order to generate an image detection tree that does as few checks as possible to detect the item.
 
-const {px, rect} = require('./util.js');
+const {px, rect, rectS} = require('./util.js');
 const {PixelDetector, Palette} = require('./color.js');
-const {GridLayout, Bar, RegularButton, MoveButton, ItemSlot, InventorySlot, ItemListSlot, PlusMinusCap} = require('./ngu_widgets.js')
+const {GridLayout, Bar, RegularButton, MoveButton, ItemSlot, InventorySlot, ItemListSlot, PlusMinusCap, PlusMinusCapSmall} = require('./ngu_widgets.js')
 
 
 // canvas size
@@ -24,6 +24,13 @@ const size = px( 960, 600 );
 // by doing this we'll be able to avoid unnecessary input events (e.g. don't click on the adventure feature button, if we're already in the adventure screen), and to prevent sending input to the wrong screen.
 const frames = {
 };
+
+class Digger {
+	constructor( page, corner ) {
+		this.page = page;
+		this.corner = corner;
+	}
+}
 
 // grid layouts
 const grids = {
@@ -55,6 +62,9 @@ const grids = {
 	},
 	ngu: {
 		rows: new GridLayout( rect(px(500,225), px(610,535)), px(1, 9), PlusMinusCap, 0, 5 ),
+	},
+	gd: {
+		pages: new GridLayout( rect(px(311,95), px(500,123)), px(3, 1), RegularButton, 3, 0 ),
 	}
 };
 
@@ -117,8 +127,42 @@ const ngu = {
 	ngu: {
 		rows: grids.ngu.rows.createAll(),
 		switchPage: new RegularButton( rect(px(311, 94), px(441,124)) ),
+	},
+	gd: {
+		tl: {
+			toggle: new RegularButton( rectS(px(330, 228), px(20,20)) ),
+			control: new PlusMinusCapSmall( rect(px(471, 174), px(566, 197)) ),
+		},
+		tr: {
+			toggle: new RegularButton( rectS(px(646, 228), px(20,20)) ),
+			control: new PlusMinusCapSmall( rect(px(787, 174), px(882, 197)) ),
+		},
+		bl: {
+			toggle: new RegularButton( rectS(px(330, 418), px(20,20)) ),
+			control: new PlusMinusCapSmall( rect(px(471, 364), px(566, 387)) ),
+		},
+		br: {
+			toggle: new RegularButton( rectS(px(646, 418), px(20,20)) ),
+			control: new PlusMinusCapSmall( rect(px(787, 364), px(882, 387)) ),
+		},
+		pages: grids.gd.pages.createAll(),
+		clear: new RegularButton( rect(px (871, 67), px (940, 123)) ),
+		capSaved: new RegularButton( rect(px (724, 98), px (869, 126)) ),
+		digger: {
+			drop: new Digger(0, "tl"),
+			wand: new Digger(0, "tr"),
+			stat: new Digger(0, "bl"),
+			adv: new Digger(0, "br"),
+			engu: new Digger(1, "tl"),
+			mngu: new Digger(1, "tr"),
+			ebrd: new Digger(1, "bl"),
+			mbrd: new Digger(1, "br"),
+			pp: new Digger(2, "tl"),
+			dayc: new Digger(2, "tr"),
+			blood: new Digger(2, "bl"),
+			xp: new Digger(2, "br"),
+		}
 	}
 };
-
 
 Object.assign( module.exports, ngu );
