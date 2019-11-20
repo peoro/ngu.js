@@ -105,8 +105,8 @@ const ngu = {
 		items: grids.inventory.itemList.items.createAll(),
 	},
 	wand: {
-		capEnergy: new RegularButton( rect(px(606, 235), px(646, 265)) ),
-		capMagic: new RegularButton( rect(px(606, 333), px(646, 363)) ),
+		energy: new PlusMinusCap( rect(px(536, 235), px(646, 265)) ),
+		magic: new PlusMinusCap( rect(px(536, 333), px(646, 363)) ),
 	},
 	bm: {
 		spells: grids.bm.spells.createAll(),

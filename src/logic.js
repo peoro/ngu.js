@@ -51,12 +51,12 @@ class WandLogic extends FeatureLogic {
 	}
 	capEnergy() {
 		const {mouse} = nguJs.io;
-		mouse.move( ngu.wand.capEnergy.center );
+		mouse.move( ngu.wand.energy.cap.center );
 		mouse.click();
 	}
 	capMagic() {
 		const {mouse} = nguJs.io;
-		mouse.move( ngu.wand.capMagic.center );
+		mouse.move( ngu.wand.magic.cap.center );
 		mouse.click();
 	}
 	capAll() {
