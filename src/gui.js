@@ -205,6 +205,9 @@ class Gui {
 				mkA( `Cap all magic`, ()=>{
 					nguJs.loops.capAllMagic({times: 1});
 				});
+				mkA( `Cap all wandoos`, ()=>{
+					nguJs.loops.capAllWandoos({times: 1});
+				});
 
 				//const invDiv = createElement( contentDiv, `div` );
 				// TODO: debugging only: let's reuse the same invDiv among reloads...

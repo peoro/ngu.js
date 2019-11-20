@@ -81,6 +81,11 @@ class LoopRunner {
 				logic.bm.capAll();
 			}),
 
+			capAllWandoos: this.mkRule( `cap all wandoos`, async function() {
+				logic.wand.goTo();
+				logic.wand.capAll();
+			}),
+
 			fixInv: this.mkRule( `fix inventory`, async function() {
 				logic.inv.goTo();
 				logic.inv.applyAllBoostsToCube();
