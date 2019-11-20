@@ -1,7 +1,7 @@
 
 // generic IO functions (not specific to NGU or any game)
 
-const {px} = require('./util.js');
+const {px, wait} = require('./util.js');
 const {PixelDetector} = require('./color.js');
 const {Point, Rect} = require('./ui.js');
 
@@ -106,6 +106,7 @@ IO.State = class IOState {
 			//console.log( state, `->`, newState, `need to wait?`, this.needToWait(state, newState) );
 			if( this.needToWait(state, newState) ) {
 				await state.nextFrame;
+				await wait(IO.delay/1000);
 			}
 
 			-- this.commandsToProcess;
@@ -140,6 +141,7 @@ IO.states = {
 	keyDown: 4,
 	keyPress: 5,
 };
+IO.delay = 0;
 
 // TODO(peoro): currently it's important to `await` every io function and be careful to put short pauses after each call... Let's change this module so that input functions can be called synchronously: they just keep track of the current input sequence (e.g. using a singleton promise that keeps getting replaced) and execute it all with the correct pauses (i.e. waiting for animation frames between pieces of input that need to be broken apart, like mouse moves). Then awaiting on a single synchronization function at the end will be enough.
 
