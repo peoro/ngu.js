@@ -55,6 +55,14 @@ class InvLogic extends FeatureLogic {
 	}
 	//mergeEquip
 	//mergeAll
+
+	boost() { return nguJs.io.keyboard.press( Keyboard.keys.a ); }
+	boostSlot( slot ) {
+		const {mouse} = nguJs.io;
+		mouse.move( slot.center );
+		this.boost();
+	}
+
 	applyAllBoostsToCube() {
 		const {mouse} = nguJs.io;
 		mouse.move( ngu.inv.cube.center );
