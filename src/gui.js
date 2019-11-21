@@ -75,6 +75,9 @@ class Gui {
   "mergeSlots": {
     "slots": ["chest","legs","shoes"],
     "interval": 5000
+  },
+  "killAll": {
+    "killTimer": 10000
   }
 }`;
 					const config = JSON.parse(textArea.value);
@@ -124,6 +127,8 @@ class Gui {
 				mkA( `Merge slots`, ()=>{ nguJs.loops.applyMergeToSlots(cfg.mergeSlots.slots, cfg.mergeSlots.interval); }, `loop-inline` );
 				createTextNode(contentDiv, ", ");
 				mkA( `Merge then boost slots`, ()=>{ nguJs.loops.applyMergeBoostToSlots(cfg.mergeSlots.slots, cfg.boostSlots.slots, 1000, cfg.mergeSlots.interval); }, `loop-inline` );
+				createTextNode(contentDiv, ", ");
+				mkA( `Kill merge boost`, ()=>{ nguJs.loops.killMergeBoostLoop(cfg.mergeSlots.slots, cfg.boostSlots.slots, 0, 0, cfg.killAll.killTimer); }, `loop-inline` );
 				createElement( contentDiv, `br`);
 
 				mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
