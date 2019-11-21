@@ -8,7 +8,7 @@ const assets = require('./assets.js');
 const {IO} = require('./io.js');
 
 const noop = ()=>{};
-function createElement( parent, tag, opts={}, fn=noop ) {
+function createElement( parent, tag, opts={}, fn=noop, appendChild=true ) {
 	if( fn === noop && typeof opts === "function" ) {
 		fn = opts;
 		opts = {};
@@ -17,7 +17,9 @@ function createElement( parent, tag, opts={}, fn=noop ) {
 	const el = document.createElement( tag );
 	Object.assign( el, opts );
 	fn( el );
-	parent.appendChild( el );
+	if (appendChild) {
+		parent.appendChild( el );
+	}
 	return el;
 }
 function createTextNode( parent, text ) {
@@ -26,6 +28,19 @@ function createTextNode( parent, text ) {
 function clearElement( el ) {
 	while( el.firstChild ) {
 		el.removeChild( el.firstChild );
+	}
+}
+
+function reloadLoadoutDropdown( loadoutselect ) {
+	var s = loadoutselect;
+	for(let i = s.options.length - 1 ; i >= 0 ; i--) {
+		s.remove(i);
+	}
+	for (var key in Gui.config["loadouts"]) {
+		var opt = document.createElement("option");
+		opt.text = key;
+		opt.value = key;
+		s.options.add(opt);
 	}
 }
 
@@ -63,8 +78,10 @@ class Gui {
 			}
 
 			createElement( controlDiv, `div`, {className:`content`}, (contentDiv)=>{
+				const loadoutselect = createElement( contentDiv, `select`, {id: "loadout-select"}, noop, false );
 				const textArea = createElement( contentDiv, `textArea`, {cols:80, rows:6, id:"config"}, implementTyping);
 				{
+					textArea.style.display = `block`;
 					textArea.value =
 `{
   "inputdelay": 0,
@@ -78,21 +95,38 @@ class Gui {
   },
   "killAll": {
     "killTimer": 10000
+  },
+  "loadouts": {
+    "farming": {
+      "loadoutNumber": 1,
+      "diggerFn": "capSaved"
+    },
+    "drop": {
+      "loadoutNumber": 2,
+      "diggers": ["drop","engu","mngu","adv","dayc"],
+      "diggerFn": "cap"
+    },
+    "ygg": {
+      "loadoutNumber": 5,
+      "diggers": ["drop","xp","pp","adv","dayc"],
+      "diggerFn": "toggle"
+    }
   }
 }`;
 					const config = JSON.parse(textArea.value);
 					loadConfig( config );
+					reloadLoadoutDropdown( loadoutselect );
 				}
-				createElement( contentDiv, `br`);
 
 				const reloadConfig = createElement(contentDiv, `a`, {textContent:`Reload config`, href:`javascript:void(0)`});
 				{
+					reloadConfig.style.display = `block`;
 					reloadConfig.onclick = function() {
 						const config = JSON.parse(document.getElementById("config").value);
 						loadConfig( config );
+						reloadLoadoutDropdown( loadoutselect );
 					}
 				}
-				createElement( contentDiv, `br`);
 				createElement( contentDiv, `br`);
 
 				// let's display what's the loop currently active (and a button to disable it)
@@ -121,15 +155,24 @@ class Gui {
 						a.addEventListener( `click`, fn );
 					});
 				};
-				const cfg = Gui.config;
-				mkA( `Boost slots`, ()=>{ nguJs.loops.applyBoostToSlots(cfg.boostSlots.slots, cfg.boostSlots.interval); }, `loop-inline` );
+
+				mkA( `Boost slots`, ()=>{ const cfg = Gui.config; nguJs.loops.applyBoostToSlots(cfg.boostSlots.slots, cfg.boostSlots.interval); }, `loop-inline` );
 				createTextNode(contentDiv, ", ");
-				mkA( `Merge slots`, ()=>{ nguJs.loops.applyMergeToSlots(cfg.mergeSlots.slots, cfg.mergeSlots.interval); }, `loop-inline` );
+				mkA( `Merge slots`, ()=>{ const cfg = Gui.config; nguJs.loops.applyMergeToSlots(cfg.mergeSlots.slots, cfg.mergeSlots.interval); }, `loop-inline` );
 				createTextNode(contentDiv, ", ");
-				mkA( `Merge then boost slots`, ()=>{ nguJs.loops.applyMergeBoostToSlots(cfg.mergeSlots.slots, cfg.boostSlots.slots, 1000, cfg.mergeSlots.interval); }, `loop-inline` );
+				mkA( `Merge then boost slots`, ()=>{ const cfg = Gui.config; nguJs.loops.applyMergeBoostToSlots(cfg.mergeSlots.slots, cfg.boostSlots.slots, 1000, cfg.mergeSlots.interval); }, `loop-inline` );
 				createTextNode(contentDiv, ", ");
-				mkA( `Kill merge boost`, ()=>{ nguJs.loops.killMergeBoostLoop(cfg.mergeSlots.slots, cfg.boostSlots.slots, 0, 0, cfg.killAll.killTimer); }, `loop-inline` );
+				mkA( `Kill merge boost`, ()=>{ const cfg = Gui.config; nguJs.loops.killMergeBoostLoop(cfg.mergeSlots.slots, cfg.boostSlots.slots, 0, 0, cfg.killAll.killTimer); }, `loop-inline` );
 				createElement( contentDiv, `br`);
+				contentDiv.appendChild(loadoutselect);
+				mkA( `Switch loadout`, ()=>{
+					const cfg = Gui.config;
+					const idx = loadoutselect.value;
+					const loadoutIdx = cfg.loadouts[idx].loadoutNumber - 1;
+					const diggers = cfg.loadouts[idx].diggers;
+					const diggerFn = cfg.loadouts[idx].diggerFn;
+					nguJs.loops.toLoadout(loadoutIdx, diggers, diggerFn, {times:1});
+				}, `loop-inline` );
 
 				mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
 				mkA( `Snipe boss`, ()=>{ nguJs.loops.snipeBoss(); } );

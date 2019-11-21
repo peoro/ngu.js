@@ -180,7 +180,7 @@ class InvLogic extends FeatureLogic {
 			nguJs.io.keyboard.press( Keyboard.keys.f );
 		}
 		const {mouse} = nguJs.io;
-		mouse.move( loadout.center );
+		mouse.move( ngu.inv.loadout[loadout].center );
 		mouse.click();
 	}
 

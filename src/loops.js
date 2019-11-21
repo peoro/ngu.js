@@ -141,6 +141,25 @@ class LoopRunner {
 					});
 			}),
 
+			toLoadout: this.mkRule( `switch loadout`, async function(loadout, diggers, diggerFn) {
+				logic.inv.goTo();
+				logic.inv.applyLoadout(loadout, true, true, true);
+
+				logic.gd.goTo();
+				logic.gd.clearDiggers();
+				if (diggerFn == "capSaved") {
+					logic.gd.capSavedDiggers();
+				} else {
+					for ( const digger of diggers) {
+						if (diggerFn == "toggle") {
+							logic.gd.toggleDigger(digger);
+						} else {
+							logic.gd.capDigger(digger);
+						}
+					}
+				}
+			}),
+
 			fixInv: this.mkRule( `fix inventory`, async function() {
 				logic.inv.goTo();
 				logic.inv.applyAllBoostsToCube();
