@@ -78,9 +78,9 @@ class Gui {
 				}
 				createElement( contentDiv, `br`);
 
-				const refreshConfig = createElement(contentDiv, `a`, {textContent:`Refresh config`, href:`javascript:void(0)`});
+				const reloadConfig = createElement(contentDiv, `a`, {textContent:`Reload config`, href:`javascript:void(0)`});
 				{
-					refreshConfig.onclick = function() {
+					reloadConfig.onclick = function() {
 						const config = JSON.parse(document.getElementById("config").value);
 						loadConfig( config );
 					}
