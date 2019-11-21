@@ -68,8 +68,10 @@ class Gui {
 					textArea.value =
 `{
   "inputdelay": 0,
-  "boost": ["acc4",0,1,"head","weapon","cube"],
-  "boostInterval": 5000
+  "boostSlots": {
+    "slots": ["acc4",0,1,"head","weapon","cube"],
+    "interval": 5000
+  }
 }`;
 					const config = JSON.parse(textArea.value);
 					loadConfig( config );
@@ -114,7 +116,7 @@ class Gui {
 				};
 				const cfg = Gui.config;
 				mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
-				mkA( `Boost slots`, ()=>{ nguJs.loops.applyBoostToSlots(cfg.boost, cfg.boostInterval); } );
+				mkA( `Boost slots`, ()=>{ nguJs.loops.applyBoostToSlots(cfg.boostSlots.slots, cfg.boostSlots.interval); } );
 				mkA( `Snipe boss`, ()=>{ nguJs.loops.snipeBoss(); } );
 				mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.snipeLoop(); } );
 				mkA( `Kill all`, ()=>{ nguJs.loops.killAll(); } );
