@@ -112,16 +112,21 @@ class Gui {
 				});
 
 				// loop buttons
-				const mkA = (textContent, fn)=>{
-					createElement( contentDiv, `a`, {className:`loop`, href:`javascript:void 0;`, textContent}, (a)=>{
+				const mkA = (textContent, fn, classname=`loop`)=>{
+					createElement( contentDiv, `a`, {className:classname, href:`javascript:void 0;`, textContent}, (a)=>{
 						// TODO(peoro): place a single event listener on the whole `contentDiv` that routes events
 						a.addEventListener( `click`, fn );
 					});
 				};
 				const cfg = Gui.config;
+				mkA( `Boost slots`, ()=>{ nguJs.loops.applyBoostToSlots(cfg.boostSlots.slots, cfg.boostSlots.interval); }, `loop-inline` );
+				createTextNode(contentDiv, ", ");
+				mkA( `Merge slots`, ()=>{ nguJs.loops.applyMergeToSlots(cfg.mergeSlots.slots, cfg.mergeSlots.interval); }, `loop-inline` );
+				createTextNode(contentDiv, ", ");
+				mkA( `Merge then boost slots`, ()=>{ nguJs.loops.applyMergeBoostToSlots(cfg.mergeSlots.slots, cfg.boostSlots.slots, 1000, cfg.mergeSlots.interval); }, `loop-inline` );
+				createElement( contentDiv, `br`);
+
 				mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
-				mkA( `Boost slots`, ()=>{ nguJs.loops.applyBoostToSlots(cfg.boostSlots.slots, cfg.boostSlots.interval); } );
-				mkA( `Merge slots`, ()=>{ nguJs.loops.applyMergeToSlots(cfg.mergeSlots.slots, cfg.mergeSlots.interval); } );
 				mkA( `Snipe boss`, ()=>{ nguJs.loops.snipeBoss(); } );
 				mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.snipeLoop(); } );
 				mkA( `Kill all`, ()=>{ nguJs.loops.killAll(); } );

@@ -86,7 +86,7 @@ class LoopRunner {
 				logic.wand.capAll();
 			}),
 
-			applyBoostToSlots: this.mkRule( `apply boost to slots`, async function(slots, interval) {
+			applyBoostToSlots: this.mkRule( `boost slots`, async function(slots, interval) {
 				logic.inv.goTo();
 				for (const slot of slots) {
 					if (slot === "cube") {
@@ -105,7 +105,7 @@ class LoopRunner {
 				await wait (interval/1000);
 			}),
 
-			applyMergeToSlots: this.mkRule( `apply merge to slots`, async function(slots, interval) {
+			applyMergeToSlots: this.mkRule( `merge slots`, async function(slots, interval) {
 				logic.inv.goTo();
 				for (const slot of slots) {
 					if (typeof slot === "number") {
@@ -120,6 +120,11 @@ class LoopRunner {
 				}
 				await this.sync();
 				await wait (interval/1000);
+			}),
+
+			applyMergeBoostToSlots: this.mkRule( `merge then boost slots`, async function(mergeSlots, boostSlots, mergeInterval, boostInterval){
+				await nguJs.loops.applyMergeToSlots.fn.call( this, mergeSlots, mergeInterval );
+				await nguJs.loops.applyBoostToSlots.fn.call( this, boostSlots, boostInterval );
 			}),
 
 			fixInv: this.mkRule( `fix inventory`, async function() {
