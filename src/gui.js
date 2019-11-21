@@ -71,6 +71,10 @@ class Gui {
   "boostSlots": {
     "slots": ["acc4",0,1,"head","weapon","cube"],
     "interval": 5000
+  },
+  "mergeSlots": {
+    "slots": ["chest","legs","shoes"],
+    "interval": 5000
   }
 }`;
 					const config = JSON.parse(textArea.value);
@@ -117,6 +121,7 @@ class Gui {
 				const cfg = Gui.config;
 				mkA( `Merge everything`, ()=>{ nguJs.loops.fixInv(); } );
 				mkA( `Boost slots`, ()=>{ nguJs.loops.applyBoostToSlots(cfg.boostSlots.slots, cfg.boostSlots.interval); } );
+				mkA( `Merge slots`, ()=>{ nguJs.loops.applyMergeToSlots(cfg.mergeSlots.slots, cfg.mergeSlots.interval); } );
 				mkA( `Snipe boss`, ()=>{ nguJs.loops.snipeBoss(); } );
 				mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.snipeLoop(); } );
 				mkA( `Kill all`, ()=>{ nguJs.loops.killAll(); } );
