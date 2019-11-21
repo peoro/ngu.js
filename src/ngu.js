@@ -93,7 +93,7 @@ const ngu = {
 		enemy: {
 			hpBar: new Bar( rect(px(734,403), px(934,428)) ),
 		},
-		bossDetector: new PixelDetector( px(715,278), new Palette([[0xf7ef29ff, true]], false) ),
+		bossDetector: new PixelDetector( px(740,280), new Palette([[0xf7ef29ff, true]], false) ),
 	},
 	inv: {
 		inventory: grids.inventory.inventory.createAll(),
