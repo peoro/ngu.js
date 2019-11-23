@@ -145,15 +145,7 @@ class LoopRunner {
 			killMergeBoostLoop: this.mkRule( `kill merge boost`, async function(mergeSlots, boostSlots, mergeInterval, boostInterval, killTimer){
 				await nguJs.loops.applyMergeToSlots.fn.call( this, mergeSlots, mergeInterval );
 				await nguJs.loops.applyBoostToSlots.fn.call( this, boostSlots, boostInterval );
-				const killAllP = nguJs.loops.killAll.fn.apply(this);
-				await withTimeout( killAllP, killTimer / 1000 )
-					.catch( async (err)=>{
-						if( err === `stop` ) { return; }
-						console.assert( err === `Timeout on a promise after 30s` );
-						this.shouldStop = true;
-						await killAllP.catch( ()=>{} );
-						this.shouldStop = false;
-					});
+				await this.withTimeout( nguJs.loops.killAll.fn.apply(this), killTimer / 1000 );
 			}),
 
 			toLoadout: this.mkRule( `switch loadout`, async function(loadout, diggers, diggerFn) {
