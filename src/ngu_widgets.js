@@ -144,6 +144,7 @@ class MoveButton extends RegularButton {
 MoveButton.activeDetector = new PixelDetector( px(1,1), new Palette([
 	[0xffeb04ff, true],
 	[0xc7c4c7ff, false],
+	[0xc6c3c6ff, false], // TODO(peoro): why sometimes this color is displayed? :F
 ]) );
 // the move state color fades bewtween `ready` and `unavailable`, thus the intermediate values would give us issues...
 MoveButton.stateDetector = new PixelDetector( px(8,8), new Palette([
