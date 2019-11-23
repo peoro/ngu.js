@@ -71,6 +71,21 @@ class LoopRunner {
 			console.assert( !this.currentRule, `Rule didn't stop...` );
 		}
 	}
+	
+	withTimeout( loopPromise, timeSec ) {
+		// TODO(peoro): oh god @,@ it's unreal how hacky this stuff got...
+		// we really really need to start using behavior trees or something
+		return withTimeout( loopPromise, timeSec ) // running `loopPromise` AND a timer
+			.catch( async (err)=>{
+				if( err === `stop` ) { return; } // `loopPromise` failed (stop was requested by the user)
+
+				// timer failed
+				console.assert( err === `Timeout on a promise after ${timeSec}s` );
+				this.shouldStop = true; // then, to stop `loopPromise`, we set this var
+				await loopPromise.catch( ()=>{} ); // we wait for `loopPromise` to finish, ignoring its `stop` error
+				this.shouldStop = false; // and reset this var so that WE don't stop DDD:
+			});
+    }
 
 	loops( nguJs ) {
 		const {logic, io} = nguJs;
@@ -270,20 +285,7 @@ class LoopRunner {
 
 			killAllLoop: this.mkRule( `kill all and fix inventory`, async function(){
 				await nguJs.loops.fixInv.fn.apply( this );
-
-				// TODO(peoro): oh god @,@ it's unreal how hacky this stuff got...
-				// we really really need to start using behavior trees or something
-				const killAllP = nguJs.loops.killAll.fn.apply(this);
-				await withTimeout( killAllP, 30 ) // running `killAll` AND a timer
-					.catch( async (err)=>{
-						if( err === `stop` ) { return; } // `killAll` failed (stop was requested
-
-						// timer failed
-						console.assert( err === `Timeout on a promise after 30s` );
-						this.shouldStop = true; // then, to stop `killAll`, we set this var
-						await killAllP.catch( ()=>{} ); // we wait for `killAll` to finish, ignoring its `stop` error
-						this.shouldStop = false; // and reset this var so that WE don't stop DDD:
-					});
+				await this.withTimeout( nguJs.loops.killAll.fn.apply(this), 30 );
 			}),
 
 		};
