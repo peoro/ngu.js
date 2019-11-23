@@ -49,6 +49,47 @@ function loadConfig( config ) {
 	Gui.config = config;
 }
 
+const defaultConfig =
+`{
+  "inputdelay": 0,
+  "boostSlots": {
+    "slots": ["acc4",0,1,"head","weapon","cube"],
+    "interval": 5000
+  },
+  "mergeSlots": {
+    "slots": ["chest","legs","shoes"],
+    "interval": 5000
+  },
+  "killAll": {
+    "killTimer": 10000
+  },
+  "loadouts": {
+    "farming": {
+      "loadoutNumber": 1,
+      "diggerFn": "capSaved"
+    },
+    "drop": {
+      "loadoutNumber": 2,
+      "diggers": ["drop","engu","mngu","adv","dayc"],
+      "diggerFn": "cap"
+    },
+    "ygg": {
+      "loadoutNumber": 5,
+      "diggers": ["drop","xp","pp","adv","dayc"],
+      "diggerFn": "toggle"
+    }
+  }
+}`;
+
+function isJsonValid(str) {
+	try {
+		JSON.parse(str);
+	} catch (e) {
+		return false;
+	}
+	return true;
+}
+
 class Gui {
 	constructor( nguJs ) {
 		this.nguJs = nguJs;
@@ -82,51 +123,52 @@ class Gui {
 				const textArea = createElement( contentDiv, `textArea`, {cols:80, rows:6, id:"config"}, implementTyping);
 				{
 					textArea.style.display = `block`;
-					textArea.value =
-`{
-  "inputdelay": 0,
-  "boostSlots": {
-    "slots": ["acc4",0,1,"head","weapon","cube"],
-    "interval": 5000
-  },
-  "mergeSlots": {
-    "slots": ["chest","legs","shoes"],
-    "interval": 5000
-  },
-  "killAll": {
-    "killTimer": 10000
-  },
-  "loadouts": {
-    "farming": {
-      "loadoutNumber": 1,
-      "diggerFn": "capSaved"
-    },
-    "drop": {
-      "loadoutNumber": 2,
-      "diggers": ["drop","engu","mngu","adv","dayc"],
-      "diggerFn": "cap"
-    },
-    "ygg": {
-      "loadoutNumber": 5,
-      "diggers": ["drop","xp","pp","adv","dayc"],
-      "diggerFn": "toggle"
-    }
-  }
-}`;
+					textArea.value = localStorage.getItem('nguJsConfig') || defaultConfig;
 					const config = JSON.parse(textArea.value);
 					loadConfig( config );
 					reloadLoadoutDropdown( loadoutselect );
 				}
 
-				const reloadConfig = createElement(contentDiv, `a`, {textContent:`Reload config`, href:`javascript:void(0)`});
+				const setConfig = createElement(contentDiv, `a`, {textContent:`Set config`, href:`javascript:void(0)`});
 				{
-					reloadConfig.style.display = `block`;
-					reloadConfig.onclick = function() {
-						const config = JSON.parse(document.getElementById("config").value);
+					setConfig.onclick = function() {
+						const configStr = document.getElementById("config").value;
+						if (!isJsonValid(configStr)) {
+							alert('Malformed JSON config');
+							return false;
+						}
+						const config = JSON.parse(configStr);
 						loadConfig( config );
 						reloadLoadoutDropdown( loadoutselect );
 					}
 				}
+				createTextNode(contentDiv, ", ");
+				const saveConfig = createElement(contentDiv, `a`, {textContent:`Save config`, href:`javascript:void(0)`});
+				{
+					saveConfig.onclick = function() {
+						const configStr = document.getElementById("config").value;
+						if (!isJsonValid(configStr)) {
+							alert('Malformed JSON config');
+							return false;
+						}
+						localStorage.setItem('nguJsConfig', configStr);
+					}
+				}
+				createTextNode(contentDiv, ", ");
+				const loadConfigEl = createElement(contentDiv, `a`, {textContent:`Load config`, href:`javascript:void(0)`});
+				{
+					loadConfigEl.onclick = function() {
+						document.getElementById("config").value = localStorage.getItem('nguJsConfig') || defaultConfig;
+					}
+				}
+				createTextNode(contentDiv, ", ");
+				const defaultConfigEl = createElement(contentDiv, `a`, {textContent:`Default config`, href:`javascript:void(0)`});
+				{
+					defaultConfigEl.onclick = function() {
+						document.getElementById("config").value = defaultConfig;
+					}
+				}
+				createElement( contentDiv, `br`);
 				createElement( contentDiv, `br`);
 
 				// let's display what's the loop currently active (and a button to disable it)
