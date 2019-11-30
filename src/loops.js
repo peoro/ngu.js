@@ -279,6 +279,48 @@ class LoopRunner {
 				await nguJs.loops.fixInv.fn.apply( this );
 				await this.withTimeout( nguJs.loops.killAll.fn.apply(this), 30 );
 			}),
+			
+
+			fixInvPlus: this.mkRule( `fix inventory plus`, async function( invActions ) {
+				const shouldProcessSlot = ( actionArr, slot )=>{
+					if( actionArr === true ) { return true; }
+					if( actionArr === false ) { return false; }
+					
+					console.assert( Array.isArray(actionArr) );
+					return actionArr.includes( slot );
+				};
+				const {boost, merge, quest} = invActions;
+				
+				
+				logic.inv.goTo();
+
+				let i = 0;
+				for( let i = 0; i < ngu.inv.inventory.length; ++i ) {
+					let slot = ngu.inv.inventory[i];
+
+					const [b, m, q] = [boost, merge, quest].map( (action)=>shouldProcessSlot(action, i) );
+					
+					if( !b && !m && !q ) {
+						continue;
+					}
+					
+					console.log( `Slot ${i} -- b:${b} m:${m} q:${q}` );
+					const {mouse} = nguJs.io;
+					mouse.move( slot.center );
+					
+					q && logic.inv.quest();
+					b && logic.inv.boost();
+					m && logic.inv.merge();
+					await this.sync();
+				};
+				
+				logic.inv.applyAllBoostsToCube();
+			}),
+
+			killAllLoopPlus: this.mkRule( `kill all plus`, async function( invActions, killTimer=30 ){
+				await nguJs.loops.fixInvPlus.fn.call( this, invActions );
+				await this.withTimeout( nguJs.loops.killAll.fn.apply(this), killTimer );
+			}),
 
 		};
 	}

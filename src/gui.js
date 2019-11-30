@@ -60,6 +60,12 @@ const defaultConfig =
     "slots": ["chest","legs","shoes"],
     "interval": 5000
   },
+  "inventory": {
+    "comment": "can be array of inv slot (0 to 59), or bool - quest=rightClick",
+    "merge": true,
+    "boost": [],
+    "quest": false
+  },
   "killAll": {
     "killTimer": 10000
   },
@@ -221,6 +227,10 @@ class Gui {
 				mkA( `Snipe boss and merge everything`, ()=>{ nguJs.loops.snipeLoop(); } );
 				mkA( `Kill all`, ()=>{ nguJs.loops.killAll(); } );
 				mkA( `Kill all and merge everything`, ()=>{ nguJs.loops.killAllLoop(); } );
+				mkA( `Kill all plus (uses cfg.killTimer.killTimer, cfg.inventory.*)`, ()=>{
+					const cfg = Gui.config;
+					nguJs.loops.killAllLoopPlus( cfg.inventory, Math.round(cfg.killAll.killTimer/1000) );
+				} );
 				mkA( `Fetch item lookup table`, async ()=>{
 					const {logic, io, loopRunner} = nguJs;
 					const {ngu} = nguJsLib;

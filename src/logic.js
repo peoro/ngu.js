@@ -162,6 +162,8 @@ class InvLogic extends FeatureLogic {
 		mouse.move( slot.center );
 		this.boost();
 	}
+	
+	quest() { return nguJs.io.mouse.click( 2 ); }
 
 	applyAllBoostsToCube() {
 		const {mouse} = nguJs.io;
