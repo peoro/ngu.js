@@ -35,7 +35,7 @@ class Digger {
 // grid layouts
 const grids = {
 	features: {
-		features: new GridLayout( rect(px(176,30), px(290,523)), px(1, 17), RegularButton ),
+		features: new GridLayout( rect(px(179,13), px(287,493)), px(1, 18), RegularButton ),
 		selloutShop: rect(px(176,524), px(290,583)),
 	},
 	adventure: {
