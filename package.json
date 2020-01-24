@@ -8,6 +8,7 @@
 		"serveo": "ssh -R ${USER}-ngujs.serveo.net:80:localhost:8042 serveo.net",
 		"build:dev": "webpack --mode=development",
 		"start:dev": "webpack-dev-server --mode=development --disable-host-check",
+		"start:prod": "webpack-dev-server --mode=production --disable-host-check",
 		"dev": "npm run build:dev && cat dist/ngu.js | xclip -selection clipboard",
 		"test": "mocha tests/index.js"
 	},
